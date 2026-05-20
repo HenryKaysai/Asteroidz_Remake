@@ -8,7 +8,7 @@
             "args": [
                 "${workspaceFolder}/*.c",
                 "-o",
-                "${fileDirname}\\$main.exe",
+                "${workspaceFolder}\\main.exe",
                 "-I${workspaceFolder}/include",
                 "-L${workspaceFolder}/lib",
                 "-lraylib",
