@@ -1,0 +1,26 @@
+#include "raylib.h"
+#include "prototypes.h"
+
+void Carregar_Texturas(Contextos_Jogo *ctx) {
+    ctx->Nave = LoadTexture("sprites/nave.png");
+    SetTextureFilter(ctx->Nave, TEXTURE_FILTER_POINT);
+    
+    ctx->pivo_nave = (Vector2){ 32, 32 }; 
+
+    ctx->Asteroid_1 = LoadTexture("sprites/full_asteroid.png");
+    SetTextureFilter(ctx->Asteroid_1, TEXTURE_FILTER_POINT);
+
+    ctx->Asteroid_2 = LoadTexture("sprites/full_asteroid_2.png");
+    SetTextureFilter(ctx->Asteroid_2, TEXTURE_FILTER_POINT);
+
+    ctx->Asteroid_3 = LoadTexture("sprites/full_asteroid_3.png");
+    SetTextureFilter(ctx->Asteroid_3, TEXTURE_FILTER_POINT);
+}
+
+void Descarregar_Texturas(Contextos_Jogo *ctx){
+    UnloadTexture(ctx->Nave);
+    UnloadTexture(ctx->Asteroid_1);
+    UnloadTexture(ctx->Asteroid_2);
+    UnloadTexture(ctx->Asteroid_3);
+
+}
