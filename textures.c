@@ -15,6 +15,9 @@ void Carregar_Texturas(Contextos_Jogo *ctx) {
 
     ctx->Asteroid_3 = LoadTexture("sprites/full_asteroid_3.png");
     SetTextureFilter(ctx->Asteroid_3, TEXTURE_FILTER_POINT);
+
+    ctx->Pink_Arrow = LoadTexture("sprites/pink_arrow.png");
+    SetTextureFilter(ctx->Pink_Arrow, TEXTURE_FILTER_POINT);
 }
 
 void Descarregar_Texturas(Contextos_Jogo *ctx){

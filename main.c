@@ -22,9 +22,10 @@ int main(void){
     jogo.frame_atual = 0;
     jogo.contador_tempo = 0;
     jogo.velocidade_animacao = 10;
+    jogo.opcao_selecionada = 0;
 
      
-    while (!WindowShouldClose())
+    while (!WindowShouldClose() && estado_atual != SAIR)
     {
         switch (estado_atual)
         {
@@ -34,6 +35,7 @@ int main(void){
 
             case MENU:
                 Atualizar_Menu(&estado_atual);
+                Escolhe_Menu(&jogo.opcao_selecionada, &estado_atual);
                 break;
 
             case JOGANDO:
@@ -42,7 +44,7 @@ int main(void){
                 Gira_Nave(&jogo.angulo_nave);
                 Atualiza_Nave(&jogo.frame_atual, &jogo.contador_tempo, jogo.velocidade_animacao);
 
-                //Entra no meu de pausa de aperta ESC
+                //Entra no meu de pausa se apertar ESC
                 if(IsKeyPressed(KEY_ESCAPE)){
                     ShowCursor();
                     EnableCursor();
@@ -51,7 +53,20 @@ int main(void){
                 break;
 
             case PAUSE:
-                Pausar_Jogo(&estado_atual); // Chama a função para checar se deve despausar
+                Escolhe_Menu_Pausa(&jogo.opcao_selecionada, &estado_atual);
+                Despausar_Jogo(&estado_atual); // Chama a função para checar se deve despausar
+                break;
+
+            case SAVE:
+                
+                break;
+
+            case LOAD:
+
+                break;
+
+            case BEST_SCORES:
+
                 break;
         }
 
@@ -65,7 +80,26 @@ int main(void){
                     break;
                  
                 case MENU: //É o menu... é só isso mesmo
-                    Desenha_Menu_Principal();
+                    Desenha_Menu_Principal(&jogo.opcao_selecionada);
+                    int inicio_y = (ALTURA_TELA / 2) + 60;
+                    
+                    switch(jogo.opcao_selecionada){//tem que dar um jeito de empurrar isso dentro de uma função mas ta tarde
+                        case 0://seta apontando para o start
+                            DrawTexture(jogo.Pink_Arrow, (LARGURA_TELA / 2) - (MeasureText("LOAAD", 30)), inicio_y, WHITE);
+                            break;
+
+                        case 1://seta apontando para o load
+                            DrawTexture(jogo.Pink_Arrow, (LARGURA_TELA / 2) - (MeasureText("LOAD", 30)), inicio_y + 50, WHITE);
+                            break;
+
+                        case 2://seta apontando para o best scores
+                            DrawTexture(jogo.Pink_Arrow, (LARGURA_TELA / 2) - (MeasureText("LOADLOAA", 30)), inicio_y + 100, WHITE);
+                            break;
+
+                        case 3://seta apontando para o exit
+                            DrawTexture(jogo.Pink_Arrow, (LARGURA_TELA / 2) - (MeasureText("EXIT", 30)), inicio_y + 150, WHITE);
+                            break;
+                    }
                     break;
 
                 case JOGANDO://Aqui tem que trabalhar a aparência do jogo e o jogo xD
@@ -75,13 +109,23 @@ int main(void){
                     break;
 
                 case PAUSE: //Menu de pausa, ainda não sei se tudo vai ser perdido se pausar o jogo
-                    Desenha_Menu_Pausa();
+                    Desenha_Menu_Pausa(&jogo.opcao_selecionada);
                  break;
+
+                case SAVE:
+                
+                    break;
+
+                case LOAD:
+
+                    break;
+
+                case BEST_SCORES:
+
+                    break;
             }
         EndDrawing();
     }
-    Descarregar_Texturas(&jogo);
-    CloseWindow();
-    return 0; 
+    
     }
     
