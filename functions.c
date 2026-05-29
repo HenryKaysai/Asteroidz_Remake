@@ -1,5 +1,6 @@
 #include "raylib.h"
 #include "prototypes.h"
+#include <math.h>
 
 //////////////////////////////////////////////////
 //Funções dos estados do jogo
@@ -83,6 +84,58 @@ void Desenha_Menu_Pausa(int *opcao_selecionada){
     Desenha_Texto_Centralizado("MAIN MENU", inicio_y + 150, 30, cor_menu);
     // EXIT (4)
     Desenha_Texto_Centralizado("EXIT", inicio_y + 200, 30, cor_exit);
+}
+
+// Função para desenhar a seta do menu em diferentes posições
+void Desenha_Seta_Menu_Principal(int *framerate, int *opcao_selecionada, Texture2D textura, Vector2 pivo){
+    int inicio_y = (ALTURA_TELA / 2) + 60;
+    Rectangle seta_hitbox_source = {(*framerate) * 30, 0, 30, 30};
+                        
+                        
+    if ((*opcao_selecionada) == 0){//seta apontando para o start
+            Rectangle seta_hitbox_start = {(LARGURA_TELA / 2) - (MeasureText("LOAAD", 30)), inicio_y, 30, 30};  
+            DrawTexturePro(textura, seta_hitbox_source, seta_hitbox_start, pivo, 0, WHITE);
+    }
+    else if ((*opcao_selecionada) == 1){//seta apontando para o load
+            Rectangle seta_hitbox_load = {(LARGURA_TELA / 2) - (MeasureText("LOAD", 30)), inicio_y + 50, 30, 30};  
+            DrawTexturePro(textura, seta_hitbox_source, seta_hitbox_load, pivo, 0, WHITE);
+    }
+    else if (*opcao_selecionada == 2){//seta apontando para o best scores
+            Rectangle seta_hitbox_best_scores = {(LARGURA_TELA / 2) - (MeasureText("LOADLOAA", 30)), inicio_y + 100, 30, 30};  
+            DrawTexturePro(textura, seta_hitbox_source, seta_hitbox_best_scores, pivo, 0, WHITE);
+    }
+    else if ((*opcao_selecionada) == 3){//seta apontando para o exit
+            Rectangle seta_hitbox_exit = {(LARGURA_TELA / 2) - (MeasureText("EXIT", 30)), inicio_y + 150, 30, 30}  ;  
+            DrawTexturePro(textura, seta_hitbox_source, seta_hitbox_exit, pivo, 0, WHITE);
+    }
+}
+
+// Função para desenhar a seta do menu de pausa em diferentes posições
+void Desenha_Seta_Menu_Pausa(int *framerate, int *opcao_selecionada, Texture2D textura, Vector2 pivo){
+    int inicio_y = (ALTURA_TELA / 2) + 60;
+    Rectangle seta_hitbox_source = {(*framerate) * 30, 0, 30, 30};
+                        
+                        
+    if ((*opcao_selecionada) == 0){//seta apontando para o resume
+            Rectangle seta_hitbox_resume = {(LARGURA_TELA / 2) - (MeasureText("REUME", 30)), inicio_y, 30, 30};  
+            DrawTexturePro(textura, seta_hitbox_source, seta_hitbox_resume, pivo, 0, WHITE);
+    }
+    else if ((*opcao_selecionada) == 1){//seta apontando para o load
+            Rectangle seta_hitbox_load = {(LARGURA_TELA / 2) - (MeasureText("LOAD", 30)), inicio_y + 50, 30, 30};  
+            DrawTexturePro(textura, seta_hitbox_source, seta_hitbox_load, pivo, 0, WHITE);
+    }
+    else if (*opcao_selecionada == 2){//seta apontando para o save
+            Rectangle seta_hitbox_save = {(LARGURA_TELA / 2) - (MeasureText("SAVE", 30)), inicio_y + 100, 30, 30};  
+            DrawTexturePro(textura, seta_hitbox_source, seta_hitbox_save, pivo, 0, WHITE);
+    }
+    else if ((*opcao_selecionada) == 3){//seta apontando para o main menu
+            Rectangle seta_hitbox_main_menu = {(LARGURA_TELA / 2) - (MeasureText("AINAENU", 30)), inicio_y + 150, 30, 30}  ;  
+            DrawTexturePro(textura, seta_hitbox_source, seta_hitbox_main_menu, pivo, 0, WHITE);
+    }
+    else if ((*opcao_selecionada) == 4){//seta apontando para o exit
+            Rectangle seta_hitbox_exit = {(LARGURA_TELA / 2) - (MeasureText("EXIT", 30)), inicio_y + 200, 30, 30}  ;  
+            DrawTexturePro(textura, seta_hitbox_source, seta_hitbox_exit, pivo, 0, WHITE);
+    }
 }
 
 //////////////////////////////////////////////////
@@ -226,6 +279,17 @@ void Escolhe_Menu_Pausa(int *opcao_selecionada, GameState *estado){
     }
 }
 
+//Função para atualizar a animação da seta do menu principal
+void Atualiza_Seta(int *frame, int *contador, int velocidade){
+    (*contador)++;
+    if(*contador >= velocidade){
+        (*frame)++;
+        (*contador) = 0;
+    }
+    if(*frame == 8){
+        (*frame) = 0;
+    }
+}
 
 //////////////////////////////////////////////////
 //Funções da nave
@@ -244,6 +308,21 @@ void Atualiza_Nave(int *frame, int *contador, int velocidade){
     }
 }
 
+// Função para animar o propulsor da nave
+void Anima_Propulsor(float *angulo, Texture2D textura1, Texture2D textura2, int *framerate, Vector2 pivo, float *pos_x, float *pos_y){
+    Rectangle nave_hitbox_source = {*framerate * 64, 0 ,64, 64};
+
+    if(IsKeyDown(KEY_SPACE)){
+        Rectangle nave_hitbox_dest = {(*pos_x), (*pos_y), 64, 64};
+        DrawTexturePro(textura2, nave_hitbox_source, nave_hitbox_dest, pivo, (*angulo), WHITE);
+    }
+    else{
+        Rectangle nave_hitbox_dest = {(*pos_x), (*pos_y), 64, 64};
+        DrawTexturePro(textura1, nave_hitbox_source, nave_hitbox_dest, pivo, (*angulo), WHITE);
+    }
+}
+
+
 //Função para rotacionar a nave
 void Gira_Nave(float *angulo){
     if(IsKeyDown(KEY_D) || IsKeyDown(KEY_RIGHT)){
@@ -254,6 +333,29 @@ void Gira_Nave(float *angulo){
     }
 }
 
+
+// Função para acelerar os propulsores da nave
+void Acelera_Nave(float *vel_x, float *vel_y, float *pos_x, float *pos_y, float *angulo){
+float velocidade = 0.1f; 
+float angulo_ajustado = (*angulo) - 90.0f;//o sprite começa apontado para cima
+float angulo_radianos = angulo_ajustado * (PI / 180.0f);//math.h opera em radianos
+float move_x = cosf(angulo_radianos) * velocidade;
+float move_y = sinf(angulo_radianos) * velocidade;
+// o angulo do jogo acumula infinitamente então o cos e sen geram valores entre -1 e 1
+
+    if(IsKeyDown(KEY_SPACE)){//acelera a posição do sprite na direção do bico da nave
+        ((*vel_x) += move_x);
+        ((*vel_y) += move_y);
+    }
+    (*vel_x) *= 0.99f; //inércia 
+    (*vel_y) *= 0.99f;  // desacelera 1% a cada frame então...\/
+
+    if((*vel_x) > -0.01f && (*vel_x) < 0.01f) *vel_x = 0.0f;//isso é o que efetivamente
+    if((*vel_y) > -0.01f && (*vel_y) < 0.01f) *vel_y = 0.0f;//para a nave
+
+    (*pos_x) += (*vel_x);//move a nave de fato
+    (*pos_y) += (*vel_y);
+}
 //Define uma função que vai ativar a turbina da nave
 void Mover_Nave(float *velocidade){
     if (IsKeyPressed(KEY_SPACE)){

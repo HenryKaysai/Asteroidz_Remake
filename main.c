@@ -1,5 +1,6 @@
 #include "raylib.h"
 #include "prototypes.h"
+#include <math.h>
 
 
 int main(void){
@@ -23,6 +24,11 @@ int main(void){
     jogo.contador_tempo = 0;
     jogo.velocidade_animacao = 10;
     jogo.opcao_selecionada = 0;
+    jogo.velocidade_animacao_seta = 5;
+    jogo.pos_x_nave = LARGURA_TELA / 2;
+    jogo.pos_y_nave = ALTURA_TELA / 2;
+    jogo.vel_x_nave = 0.0f;
+    jogo.vel_y_nave = 0.0f;
 
      
     while (!WindowShouldClose() && estado_atual != SAIR)
@@ -36,12 +42,14 @@ int main(void){
             case MENU:
                 Atualizar_Menu(&estado_atual);
                 Escolhe_Menu(&jogo.opcao_selecionada, &estado_atual);
+                Atualiza_Seta(&jogo.frame_atual, &jogo.contador_tempo, jogo.velocidade_animacao_seta);
                 break;
 
             case JOGANDO:
                 HideCursor();
                 DisableCursor();
                 Gira_Nave(&jogo.angulo_nave);
+                Acelera_Nave(&jogo.vel_x_nave, &jogo.vel_y_nave, &jogo.pos_x_nave, &jogo.pos_y_nave, &jogo.angulo_nave);
                 Atualiza_Nave(&jogo.frame_atual, &jogo.contador_tempo, jogo.velocidade_animacao);
 
                 //Entra no meu de pausa se apertar ESC
@@ -54,6 +62,7 @@ int main(void){
 
             case PAUSE:
                 Escolhe_Menu_Pausa(&jogo.opcao_selecionada, &estado_atual);
+                Atualiza_Seta(&jogo.frame_atual, &jogo.contador_tempo, jogo.velocidade_animacao_seta);
                 Despausar_Jogo(&estado_atual); // Chama a função para checar se deve despausar
                 break;
 
@@ -81,35 +90,16 @@ int main(void){
                  
                 case MENU: //É o menu... é só isso mesmo
                     Desenha_Menu_Principal(&jogo.opcao_selecionada);
-                    int inicio_y = (ALTURA_TELA / 2) + 60;
-                    
-                    switch(jogo.opcao_selecionada){//tem que dar um jeito de empurrar isso dentro de uma função mas ta tarde
-                        case 0://seta apontando para o start
-                            DrawTexture(jogo.Pink_Arrow, (LARGURA_TELA / 2) - (MeasureText("LOAAD", 30)), inicio_y, WHITE);
-                            break;
-
-                        case 1://seta apontando para o load
-                            DrawTexture(jogo.Pink_Arrow, (LARGURA_TELA / 2) - (MeasureText("LOAD", 30)), inicio_y + 50, WHITE);
-                            break;
-
-                        case 2://seta apontando para o best scores
-                            DrawTexture(jogo.Pink_Arrow, (LARGURA_TELA / 2) - (MeasureText("LOADLOAA", 30)), inicio_y + 100, WHITE);
-                            break;
-
-                        case 3://seta apontando para o exit
-                            DrawTexture(jogo.Pink_Arrow, (LARGURA_TELA / 2) - (MeasureText("EXIT", 30)), inicio_y + 150, WHITE);
-                            break;
-                    }
+                    Desenha_Seta_Menu_Principal(&jogo.frame_atual, &jogo.opcao_selecionada, jogo.Pink_Arrow, jogo.pivo_seta);
                     break;
 
                 case JOGANDO://Aqui tem que trabalhar a aparência do jogo e o jogo xD
-                    Rectangle nave_hitbox_source = {jogo.frame_atual * 64, 0, 64, 64 };
-                    Rectangle nave_hitbox_dest = { LARGURA_TELA / 2, ALTURA_TELA / 2, 64, 64 };
-                    DrawTexturePro(jogo.Nave, nave_hitbox_source, nave_hitbox_dest, jogo.pivo_nave, jogo.angulo_nave, WHITE);
+                    Anima_Propulsor(&jogo.angulo_nave, jogo.Nave, jogo.Nave_Propulsor, &jogo.frame_atual, jogo.pivo_nave, &jogo.pos_x_nave, &jogo.pos_y_nave);
                     break;
 
                 case PAUSE: //Menu de pausa, ainda não sei se tudo vai ser perdido se pausar o jogo
                     Desenha_Menu_Pausa(&jogo.opcao_selecionada);
+                    Desenha_Seta_Menu_Pausa(&jogo.frame_atual, &jogo.opcao_selecionada, jogo.Pink_Arrow, jogo.pivo_seta);
                  break;
 
                 case SAVE:
