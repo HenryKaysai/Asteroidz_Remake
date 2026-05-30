@@ -7,6 +7,11 @@
 #define LARGURA_TELA 1200
 #define ALTURA_TELA 800
 
+#define ESCALA_VIRTUAL 2
+#define LARGURA_VIRTUAL (LARGURA_TELA/ESCALA_VIRTUAL)
+#define ALTURA_VIRTUAL (ALTURA_TELA/ESCALA_VIRTUAL)
+
+
 //Definição dos estados do jogo
 typedef enum {
     LOGO,
@@ -14,7 +19,8 @@ typedef enum {
     JOGANDO,
     PAUSE,
     SAVE,
-    LOAD,
+    LOAD_OUT_GAME,
+    LOAD_IN_GAME,
     BEST_SCORES,
     SAIR
 } GameState;
@@ -64,8 +70,8 @@ void Atualiza_Seta(int *frame, int *contador, int velocidade);
 void Desenha_Seta_Menu_Principal(int *framerate, int *opcao_selecionada, Texture2D textura, Vector2 pivo);
 void Desenha_Seta_Menu_Pausa(int *framerate, int *opcao_selecionada, Texture2D textura, Vector2 pivo);
 void Acelera_Nave(float *vel_x, float *vel_y, float *pos_x, float *pos_y, float *angulo);
-void Anima_Propulsor(float *angulo, Texture2D textura1, Texture2D textura2, int *framerate, Vector2 pivo, float *pos_x, float *pos_y);
-
+void Anima_Propulsor(float *angulo, Texture2D textura_idle, Texture2D textura_propulsao, int *framerate, Vector2 pivo, float *pos_x, float *pos_y);
+void Sai_Menu(GameState *estado, GameState estado_desejado);
 
 
 

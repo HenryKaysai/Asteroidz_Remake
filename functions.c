@@ -5,6 +5,12 @@
 //////////////////////////////////////////////////
 //Funções dos estados do jogo
 //////////////////////////////////////////////////
+//Função para voltar de menus
+void Sai_Menu(GameState *estado, GameState estado_desejado){
+    if(IsKeyPressed(KEY_ESCAPE)){
+        (*estado) = estado_desejado;
+    }
+}
 
 //Atualiza o estado LOGO para estado MENU
 void Atualizar_Logo(GameState *estado, int *temporizador){
@@ -37,34 +43,34 @@ void Despausar_Jogo(GameState *estado){
 // Função para desenhar texto sempre centralizado
 void Desenha_Texto_Centralizado(const char* texto, int pos_y, int tamanho_fonte, Color cor) {
     int largura_texto = MeasureText(texto, tamanho_fonte);
-    DrawText(texto, (LARGURA_TELA / 2) - (largura_texto / 2), pos_y, tamanho_fonte, cor);
+    DrawText(texto, (LARGURA_VIRTUAL / 2) - (largura_texto / 2), pos_y, tamanho_fonte, cor);
 }
 
 //Função para a aparência do menu principal
 void Desenha_Menu_Principal(int *opcao_selecionada){
     // TÍTULO
-    Desenha_Texto_Centralizado("MAIN MENU", ALTURA_TELA / 4, 60, WHITE);
+    Desenha_Texto_Centralizado("MAIN MENU", ALTURA_VIRTUAL / 4, 30, WHITE);
 
     Color cor_start = ((*opcao_selecionada) == 0) ? PINK : WHITE;
     Color cor_load = ((*opcao_selecionada) == 1) ? PINK : WHITE;
     Color cor_best_scores = ((*opcao_selecionada) == 2) ? PINK : WHITE;
     Color cor_exit = ((*opcao_selecionada) == 3) ? PINK : WHITE;
 
-    int inicio_y = (ALTURA_TELA / 2) + 60;
+    int inicio_y = (ALTURA_VIRTUAL / 2) + 40;
     // START (0)
-    Desenha_Texto_Centralizado("START", inicio_y, 30, cor_start);
+    Desenha_Texto_Centralizado("START", inicio_y, 16, cor_start);
     // LOAD (1)
-    Desenha_Texto_Centralizado("LOAD", inicio_y + 50, 30, cor_load);
+    Desenha_Texto_Centralizado("LOAD", inicio_y + 24, 16, cor_load);
     // BEST SCORES (2)
-    Desenha_Texto_Centralizado("BEST SCORES", inicio_y + 100, 30, cor_best_scores);
+    Desenha_Texto_Centralizado("BEST SCORES", inicio_y + 50, 16, cor_best_scores);
     // EXIT (3)
-    Desenha_Texto_Centralizado("EXIT", inicio_y + 150, 30, cor_exit);
+    Desenha_Texto_Centralizado("EXIT", inicio_y + 74, 16, cor_exit);
 }
 
 //Função para aparência do menu de pausa
 void Desenha_Menu_Pausa(int *opcao_selecionada){
     // TÍTULO
-    Desenha_Texto_Centralizado("PAUSE", ALTURA_TELA / 4, 60, WHITE);
+    Desenha_Texto_Centralizado("PAUSE", ALTURA_VIRTUAL / 4, 30, WHITE);
 
     Color cor_start = ((*opcao_selecionada) == 0) ? PINK : WHITE;
     Color cor_load = ((*opcao_selecionada) == 1) ? PINK : WHITE;
@@ -73,67 +79,67 @@ void Desenha_Menu_Pausa(int *opcao_selecionada){
     Color cor_exit = ((*opcao_selecionada) == 4) ? PINK : WHITE;
 
 
-    int inicio_y = (ALTURA_TELA / 2) + 60;
+    int inicio_y = (ALTURA_VIRTUAL / 2) + 40;
     // START (0)
-    Desenha_Texto_Centralizado("RESUME", inicio_y, 30, cor_start);
+    Desenha_Texto_Centralizado("RESUME", inicio_y, 16, cor_start);
     // LOAD (1)
-    Desenha_Texto_Centralizado("LOAD", inicio_y + 50, 30, cor_load);
+    Desenha_Texto_Centralizado("LOAD", inicio_y + 24, 16, cor_load);
     // SAVE (2)
-    Desenha_Texto_Centralizado("SAVE", inicio_y + 100, 30, cor_save);
+    Desenha_Texto_Centralizado("SAVE", inicio_y + 50, 16, cor_save);
     // MAIN MENU (3)
-    Desenha_Texto_Centralizado("MAIN MENU", inicio_y + 150, 30, cor_menu);
+    Desenha_Texto_Centralizado("MAIN MENU", inicio_y + 74, 16, cor_menu);
     // EXIT (4)
-    Desenha_Texto_Centralizado("EXIT", inicio_y + 200, 30, cor_exit);
+    Desenha_Texto_Centralizado("EXIT", inicio_y + 100, 16, cor_exit);
 }
 
 // Função para desenhar a seta do menu em diferentes posições
 void Desenha_Seta_Menu_Principal(int *framerate, int *opcao_selecionada, Texture2D textura, Vector2 pivo){
-    int inicio_y = (ALTURA_TELA / 2) + 60;
+    int inicio_y = (ALTURA_VIRTUAL / 2) + 40;
     Rectangle seta_hitbox_source = {(*framerate) * 30, 0, 30, 30};
                         
                         
     if ((*opcao_selecionada) == 0){//seta apontando para o start
-            Rectangle seta_hitbox_start = {(LARGURA_TELA / 2) - (MeasureText("LOAAD", 30)), inicio_y, 30, 30};  
+            Rectangle seta_hitbox_start = {(LARGURA_VIRTUAL / 2) - (MeasureText("LOAAD", 16)), inicio_y, 16, 16};  
             DrawTexturePro(textura, seta_hitbox_source, seta_hitbox_start, pivo, 0, WHITE);
     }
     else if ((*opcao_selecionada) == 1){//seta apontando para o load
-            Rectangle seta_hitbox_load = {(LARGURA_TELA / 2) - (MeasureText("LOAD", 30)), inicio_y + 50, 30, 30};  
+            Rectangle seta_hitbox_load = {(LARGURA_VIRTUAL / 2) - (MeasureText("LOAD", 16)), inicio_y + 24, 16, 16};  
             DrawTexturePro(textura, seta_hitbox_source, seta_hitbox_load, pivo, 0, WHITE);
     }
     else if (*opcao_selecionada == 2){//seta apontando para o best scores
-            Rectangle seta_hitbox_best_scores = {(LARGURA_TELA / 2) - (MeasureText("LOADLOAA", 30)), inicio_y + 100, 30, 30};  
+            Rectangle seta_hitbox_best_scores = {(LARGURA_VIRTUAL / 2) - (MeasureText("LOADLOAA", 16)), inicio_y + 50, 16, 16};  
             DrawTexturePro(textura, seta_hitbox_source, seta_hitbox_best_scores, pivo, 0, WHITE);
     }
     else if ((*opcao_selecionada) == 3){//seta apontando para o exit
-            Rectangle seta_hitbox_exit = {(LARGURA_TELA / 2) - (MeasureText("EXIT", 30)), inicio_y + 150, 30, 30}  ;  
+            Rectangle seta_hitbox_exit = {(LARGURA_VIRTUAL / 2) - (MeasureText("EXIT", 16)), inicio_y + 74, 16, 16}  ;  
             DrawTexturePro(textura, seta_hitbox_source, seta_hitbox_exit, pivo, 0, WHITE);
     }
 }
 
 // Função para desenhar a seta do menu de pausa em diferentes posições
 void Desenha_Seta_Menu_Pausa(int *framerate, int *opcao_selecionada, Texture2D textura, Vector2 pivo){
-    int inicio_y = (ALTURA_TELA / 2) + 60;
+    int inicio_y = (ALTURA_VIRTUAL / 2) + 40;
     Rectangle seta_hitbox_source = {(*framerate) * 30, 0, 30, 30};
                         
                         
     if ((*opcao_selecionada) == 0){//seta apontando para o resume
-            Rectangle seta_hitbox_resume = {(LARGURA_TELA / 2) - (MeasureText("REUME", 30)), inicio_y, 30, 30};  
+            Rectangle seta_hitbox_resume = {(LARGURA_VIRTUAL / 2) - (MeasureText("REUME", 16)), inicio_y, 16, 16};  
             DrawTexturePro(textura, seta_hitbox_source, seta_hitbox_resume, pivo, 0, WHITE);
     }
     else if ((*opcao_selecionada) == 1){//seta apontando para o load
-            Rectangle seta_hitbox_load = {(LARGURA_TELA / 2) - (MeasureText("LOAD", 30)), inicio_y + 50, 30, 30};  
+            Rectangle seta_hitbox_load = {(LARGURA_VIRTUAL / 2) - (MeasureText("LOAD", 16)), inicio_y + 24, 16, 16};  
             DrawTexturePro(textura, seta_hitbox_source, seta_hitbox_load, pivo, 0, WHITE);
     }
     else if (*opcao_selecionada == 2){//seta apontando para o save
-            Rectangle seta_hitbox_save = {(LARGURA_TELA / 2) - (MeasureText("SAVE", 30)), inicio_y + 100, 30, 30};  
+            Rectangle seta_hitbox_save = {(LARGURA_VIRTUAL / 2) - (MeasureText("SAVE", 16)), inicio_y + 50, 16, 16};  
             DrawTexturePro(textura, seta_hitbox_source, seta_hitbox_save, pivo, 0, WHITE);
     }
     else if ((*opcao_selecionada) == 3){//seta apontando para o main menu
-            Rectangle seta_hitbox_main_menu = {(LARGURA_TELA / 2) - (MeasureText("AINAENU", 30)), inicio_y + 150, 30, 30}  ;  
+            Rectangle seta_hitbox_main_menu = {(LARGURA_VIRTUAL / 2) - (MeasureText("AINAENU", 16)), inicio_y + 74, 16, 16}  ;  
             DrawTexturePro(textura, seta_hitbox_source, seta_hitbox_main_menu, pivo, 0, WHITE);
     }
     else if ((*opcao_selecionada) == 4){//seta apontando para o exit
-            Rectangle seta_hitbox_exit = {(LARGURA_TELA / 2) - (MeasureText("EXIT", 30)), inicio_y + 200, 30, 30}  ;  
+            Rectangle seta_hitbox_exit = {(LARGURA_VIRTUAL / 2) - (MeasureText("EXIT", 16)), inicio_y + 100, 16, 16}  ;  
             DrawTexturePro(textura, seta_hitbox_source, seta_hitbox_exit, pivo, 0, WHITE);
     }
 }
@@ -144,37 +150,42 @@ void Desenha_Seta_Menu_Pausa(int *framerate, int *opcao_selecionada, Texture2D t
 
 // Função para seleção de opções do Menu Principal
 void Escolhe_Menu(int *opcao_selecionada, GameState *estado){
-    int inicio_y = (ALTURA_TELA / 2) + 60;
+    int inicio_y = (ALTURA_VIRTUAL / 2) + 40;
     // hit box para passar o mouse ou selecionar
-    Rectangle start_hit_box = {0, inicio_y, LARGURA_TELA, 30};
-    Rectangle load_hit_box = {0, inicio_y + 50, LARGURA_TELA, 30};
-    Rectangle best_scores_hit_box = {0, inicio_y + 100, LARGURA_TELA, 30};
-    Rectangle exit_hit_box = {0, inicio_y + 150, LARGURA_TELA, 30};
+    Rectangle start_hit_box = {0, inicio_y, LARGURA_VIRTUAL, 24};
+    Rectangle load_hit_box = {0, inicio_y + 24, LARGURA_VIRTUAL, 24};
+    Rectangle best_scores_hit_box = {0, inicio_y + 50, LARGURA_VIRTUAL, 24};
+    Rectangle exit_hit_box = {0, inicio_y + 74, LARGURA_VIRTUAL, 24};
     
     // Teclado
-    if(IsKeyPressed(KEY_DOWN)){
+    if(IsKeyPressed(KEY_DOWN) || IsKeyPressed(KEY_S)){
         (*opcao_selecionada)++;
         if(*opcao_selecionada > 3){
             *opcao_selecionada = 0;
         }
     }
-    if(IsKeyPressed(KEY_UP)){
+    if(IsKeyPressed(KEY_UP) || IsKeyPressed(KEY_W)){
         (*opcao_selecionada)--;
         if(*opcao_selecionada < 0){
             *opcao_selecionada = 3;
         }
     }
+
+    Vector2 mouse_virtual = GetMousePosition();
+    mouse_virtual.x /= ESCALA_VIRTUAL;
+    mouse_virtual.y /= ESCALA_VIRTUAL;
+
     // Mouse
-    if(CheckCollisionPointRec(GetMousePosition(), start_hit_box)){
+    if(CheckCollisionPointRec(mouse_virtual, start_hit_box)){
         *opcao_selecionada = 0;//start
     }
-    if(CheckCollisionPointRec(GetMousePosition(), load_hit_box)){
+    if(CheckCollisionPointRec(mouse_virtual, load_hit_box)){
         *opcao_selecionada = 1;//load
     }
-    if(CheckCollisionPointRec(GetMousePosition(), best_scores_hit_box)){
+    if(CheckCollisionPointRec(mouse_virtual, best_scores_hit_box)){
         *opcao_selecionada = 2;//best scores
     }
-    if(CheckCollisionPointRec(GetMousePosition(), exit_hit_box)){
+    if(CheckCollisionPointRec(mouse_virtual, exit_hit_box)){
         *opcao_selecionada = 3;//exit
     }
 
@@ -189,7 +200,7 @@ void Escolhe_Menu(int *opcao_selecionada, GameState *estado){
             break;
         case 1:
             if(IsKeyPressed(KEY_ENTER) || IsMouseButtonPressed(MOUSE_BUTTON_LEFT)){
-                *estado = LOAD;
+                *estado = LOAD_OUT_GAME;
             }
             break;
 
@@ -203,49 +214,54 @@ void Escolhe_Menu(int *opcao_selecionada, GameState *estado){
             if(IsKeyPressed(KEY_ENTER) || IsMouseButtonPressed(MOUSE_BUTTON_LEFT)){
                 *estado = SAIR;
             }
+            break;
     }
 }
 
 // Função para seleção de opções do menu de pausa
 void Escolhe_Menu_Pausa(int *opcao_selecionada, GameState *estado){
-    int inicio_y = (ALTURA_TELA / 2) + 60;
+    int inicio_y = (ALTURA_VIRTUAL / 2) + 40;
     // hit box para passar o mouse ou selecionar
-    Rectangle resume_hit_box = {0, inicio_y, LARGURA_TELA, 30};
-    Rectangle load_hit_box = {0, inicio_y + 50, LARGURA_TELA, 30};
-    Rectangle save_hit_box = {0, inicio_y + 100, LARGURA_TELA, 30};
-    Rectangle main_menu_hit_box = {0, inicio_y + 150, LARGURA_TELA, 30};
-    Rectangle exit_hit_box = {0, inicio_y + 200, LARGURA_TELA, 30};
+    Rectangle resume_hit_box = {0, inicio_y, LARGURA_VIRTUAL, 24};
+    Rectangle load_hit_box = {0, inicio_y + 24, LARGURA_VIRTUAL, 24};
+    Rectangle save_hit_box = {0, inicio_y + 50, LARGURA_VIRTUAL, 24};
+    Rectangle main_menu_hit_box = {0, inicio_y + 74, LARGURA_VIRTUAL, 24};
+    Rectangle exit_hit_box = {0, inicio_y + 100, LARGURA_VIRTUAL, 24};
     
     // Teclado
-    if(IsKeyPressed(KEY_DOWN)){
+    if(IsKeyPressed(KEY_DOWN) || IsKeyPressed(KEY_S)){
         (*opcao_selecionada)++;
         if(*opcao_selecionada > 4){
             *opcao_selecionada = 0;
         }
     }
-    if(IsKeyPressed(KEY_UP)){
+    if(IsKeyPressed(KEY_UP) || IsKeyPressed(KEY_W)){
         (*opcao_selecionada)--;
         if(*opcao_selecionada < 0){
             *opcao_selecionada = 4;
         }
     }
+
+    Vector2 mouse_virtual = GetMousePosition();
+    mouse_virtual.x /= ESCALA_VIRTUAL;
+    mouse_virtual.y /= ESCALA_VIRTUAL;
+
     // Mouse
-    if(CheckCollisionPointRec(GetMousePosition(), resume_hit_box)){
+    if(CheckCollisionPointRec(mouse_virtual, resume_hit_box)){
         *opcao_selecionada = 0;//resume
     }
-    if(CheckCollisionPointRec(GetMousePosition(), load_hit_box)){
+    if(CheckCollisionPointRec(mouse_virtual, load_hit_box)){
         *opcao_selecionada = 1;//load
     }
-    if(CheckCollisionPointRec(GetMousePosition(), save_hit_box)){
+    if(CheckCollisionPointRec(mouse_virtual, save_hit_box)){
         *opcao_selecionada = 2;//save
     }
-    if(CheckCollisionPointRec(GetMousePosition(), main_menu_hit_box)){
+    if(CheckCollisionPointRec(mouse_virtual, main_menu_hit_box)){
         *opcao_selecionada = 3;//main menu
     }
-    if(CheckCollisionPointRec(GetMousePosition(), exit_hit_box)){
+    if(CheckCollisionPointRec(mouse_virtual, exit_hit_box)){
         *opcao_selecionada = 4;//exit
     }
-
 
     // Seleção
     switch(*opcao_selecionada)
@@ -257,7 +273,7 @@ void Escolhe_Menu_Pausa(int *opcao_selecionada, GameState *estado){
             break;
         case 1:
             if(IsKeyPressed(KEY_ENTER) || IsMouseButtonPressed(MOUSE_BUTTON_LEFT)){
-                *estado = LOAD;
+                *estado = LOAD_IN_GAME;
             }
             break;
 
@@ -270,12 +286,14 @@ void Escolhe_Menu_Pausa(int *opcao_selecionada, GameState *estado){
         case 3:
             if(IsKeyPressed(KEY_ENTER) || IsMouseButtonPressed(MOUSE_BUTTON_LEFT)){
                 *estado = MENU;
-            break;
+            
             }
+            break;
         case 4:
             if(IsKeyPressed(KEY_ENTER) || IsMouseButtonPressed(MOUSE_BUTTON_LEFT)){
                 *estado = SAIR;
             }
+            break;
     }
 }
 
@@ -309,28 +327,30 @@ void Atualiza_Nave(int *frame, int *contador, int velocidade){
 }
 
 // Função para animar o propulsor da nave
-void Anima_Propulsor(float *angulo, Texture2D textura1, Texture2D textura2, int *framerate, Vector2 pivo, float *pos_x, float *pos_y){
+void Anima_Propulsor(float *angulo, Texture2D textura_idle, Texture2D textura_propulsao, int *framerate, Vector2 pivo, float *pos_x, float *pos_y){
     Rectangle nave_hitbox_source = {*framerate * 64, 0 ,64, 64};
+    Rectangle nave_hitbox_dest = {roundf(*pos_x), roundf(*pos_y), 32, 32};
 
-    if(IsKeyDown(KEY_SPACE)){
-        Rectangle nave_hitbox_dest = {(*pos_x), (*pos_y), 64, 64};
-        DrawTexturePro(textura2, nave_hitbox_source, nave_hitbox_dest, pivo, (*angulo), WHITE);
+    Texture2D textura_ativa;
+
+    if(IsKeyDown(KEY_W) || IsKeyDown(KEY_UP)){
+        textura_ativa = textura_propulsao;
     }
     else{
-        Rectangle nave_hitbox_dest = {(*pos_x), (*pos_y), 64, 64};
-        DrawTexturePro(textura1, nave_hitbox_source, nave_hitbox_dest, pivo, (*angulo), WHITE);
+        textura_ativa = textura_idle;
     }
+    DrawTexturePro(textura_ativa, nave_hitbox_source, nave_hitbox_dest, pivo, roundf(*angulo), WHITE);
 }
 
 
 //Função para rotacionar a nave
 void Gira_Nave(float *angulo){
-    if(IsKeyDown(KEY_D) || IsKeyDown(KEY_RIGHT)){
-        *angulo += 5.0f;
-    }
-    if(IsKeyDown(KEY_A) || IsKeyDown(KEY_LEFT)){
-        *angulo -= 5.0f;
-    }
+    if(IsKeyDown(KEY_D) || IsKeyDown(KEY_RIGHT)) *angulo += 3.0f;
+    if(IsKeyDown(KEY_A) || IsKeyDown(KEY_LEFT)) *angulo -= 3.0f;
+    
+    // Normaliza para manter entre 0 e 360
+    if (*angulo >= 360.0f) *angulo = 0.0f;
+    if (*angulo < 0.0f) *angulo = 360.0f;
 }
 
 
@@ -343,7 +363,7 @@ float move_x = cosf(angulo_radianos) * velocidade;
 float move_y = sinf(angulo_radianos) * velocidade;
 // o angulo do jogo acumula infinitamente então o cos e sen geram valores entre -1 e 1
 
-    if(IsKeyDown(KEY_SPACE)){//acelera a posição do sprite na direção do bico da nave
+    if(IsKeyDown(KEY_W) || IsKeyDown(KEY_UP)){//acelera a posição do sprite na direção do bico da nave
         ((*vel_x) += move_x);
         ((*vel_y) += move_y);
     }
@@ -355,10 +375,4 @@ float move_y = sinf(angulo_radianos) * velocidade;
 
     (*pos_x) += (*vel_x);//move a nave de fato
     (*pos_y) += (*vel_y);
-}
-//Define uma função que vai ativar a turbina da nave
-void Mover_Nave(float *velocidade){
-    if (IsKeyPressed(KEY_SPACE)){
-        *velocidade += 1;
-    }
 }
