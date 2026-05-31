@@ -55,6 +55,7 @@ int main(void){
                 DisableCursor();
                 Gira_Nave(&jogo.angulo_nave);
                 Acelera_Nave(&jogo.vel_x_nave, &jogo.vel_y_nave, &jogo.pos_x_nave, &jogo.pos_y_nave, &jogo.angulo_nave);
+                Limites_Nave(&jogo.pos_x_nave, &jogo.pos_y_nave);
                 Atualiza_Nave(&jogo.frame_atual, &jogo.contador_tempo, jogo.velocidade_animacao);
 
                 //Entra no meu de pausa se apertar ESC
@@ -111,11 +112,11 @@ int main(void){
                     break;
 
                 case SAVE:
-                        
+                        Desenha_Load();
                     break;
 
                 case LOAD_IN_GAME:
-                        
+                        Desenha_Load();
                     break;
 
                 case PAUSE: //Menu de pausa, ainda não sei se tudo vai ser perdido se pausar o jogo
@@ -124,7 +125,7 @@ int main(void){
                  break;
 
                 case LOAD_OUT_GAME:
-
+                    Desenha_Load();
                     break;
 
                 case BEST_SCORES:

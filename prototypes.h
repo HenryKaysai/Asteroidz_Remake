@@ -72,7 +72,8 @@ void Desenha_Seta_Menu_Pausa(int *framerate, int *opcao_selecionada, Texture2D t
 void Acelera_Nave(float *vel_x, float *vel_y, float *pos_x, float *pos_y, float *angulo);
 void Anima_Propulsor(float *angulo, Texture2D textura_idle, Texture2D textura_propulsao, int *framerate, Vector2 pivo, float *pos_x, float *pos_y);
 void Sai_Menu(GameState *estado, GameState estado_desejado);
-
+void Limites_Nave(float *pos_x, float *pos_y);
+void Desenha_Load(void);
 
 
 #endif

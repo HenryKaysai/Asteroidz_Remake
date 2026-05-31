@@ -144,6 +144,16 @@ void Desenha_Seta_Menu_Pausa(int *framerate, int *opcao_selecionada, Texture2D t
     }
 }
 
+//Função para desenhar o menu de pausa
+void Desenha_Load(void){
+
+
+    DrawRectangle(20, 100, 150, 100, WHITE);
+    DrawRectangle(ALTURA_VIRTUAL/2, 100, 150, 100, WHITE);
+    DrawRectangle(ALTURA_VIRTUAL/2 + 20, 100, 150, 100, WHITE);
+
+}
+
 //////////////////////////////////////////////////
 //Funções de funcionalidade de opções de menu
 //////////////////////////////////////////////////
@@ -326,7 +336,7 @@ void Atualiza_Nave(int *frame, int *contador, int velocidade){
     }
 }
 
-// Função para animar o propulsor da nave
+// Função para animar o propulsor da nave e desenhar a nave
 void Anima_Propulsor(float *angulo, Texture2D textura_idle, Texture2D textura_propulsao, int *framerate, Vector2 pivo, float *pos_x, float *pos_y){
     Rectangle nave_hitbox_source = {*framerate * 64, 0 ,64, 64};
     Rectangle nave_hitbox_dest = {roundf(*pos_x), roundf(*pos_y), 32, 32};
@@ -340,6 +350,43 @@ void Anima_Propulsor(float *angulo, Texture2D textura_idle, Texture2D textura_pr
         textura_ativa = textura_idle;
     }
     DrawTexturePro(textura_ativa, nave_hitbox_source, nave_hitbox_dest, pivo, roundf(*angulo), WHITE);
+
+    // EIXO X
+    if ((*pos_x) > LARGURA_VIRTUAL - 32) {
+        Rectangle fantasma_x = {roundf((*pos_x) - LARGURA_VIRTUAL), roundf(*pos_y), 32, 32};
+        DrawTexturePro(textura_ativa, nave_hitbox_source, fantasma_x, pivo, roundf(*angulo), WHITE);
+    }
+    if ((*pos_x) < 32) {
+        Rectangle fantasma_x = {roundf((*pos_x) + LARGURA_VIRTUAL), roundf(*pos_y), 32, 32};
+        DrawTexturePro(textura_ativa, nave_hitbox_source, fantasma_x, pivo, roundf(*angulo), WHITE);
+    }
+
+    // EIXO Y 
+    if ((*pos_y) > ALTURA_VIRTUAL - 32) { 
+        Rectangle fantasma_y = {roundf(*pos_x), roundf((*pos_y) - ALTURA_VIRTUAL), 32, 32};
+        DrawTexturePro(textura_ativa, nave_hitbox_source, fantasma_y, pivo, roundf(*angulo), WHITE);
+    }
+    if ((*pos_y) < 32) { 
+        Rectangle fantasma_y = {roundf(*pos_x), roundf((*pos_y) + ALTURA_VIRTUAL), 32, 32}; 
+        DrawTexturePro(textura_ativa, nave_hitbox_source, fantasma_y, pivo, roundf(*angulo), WHITE);
+    }
+
+    // QUINAS DA TELA
+    if (((*pos_x) > LARGURA_VIRTUAL - 32 || (*pos_x) < 32) && 
+        ((*pos_y) > ALTURA_VIRTUAL - 32 || (*pos_y) < 32)) {
+        
+        float quina_x = *pos_x;
+        float quina_y = *pos_y;
+
+        if ((*pos_x) > LARGURA_VIRTUAL - 32) quina_x -= LARGURA_VIRTUAL;
+        else if ((*pos_x) < 32) quina_x += LARGURA_VIRTUAL;
+
+        if ((*pos_y) > ALTURA_VIRTUAL - 32) quina_y -= ALTURA_VIRTUAL;
+        else if ((*pos_y) < 32) quina_y += ALTURA_VIRTUAL;
+
+        Rectangle fantasma_quina = {roundf(quina_x), roundf(quina_y), 32, 32};
+        DrawTexturePro(textura_ativa, nave_hitbox_source, fantasma_quina, pivo, roundf(*angulo), WHITE);
+    }
 }
 
 
@@ -375,4 +422,22 @@ float move_y = sinf(angulo_radianos) * velocidade;
 
     (*pos_x) += (*vel_x);//move a nave de fato
     (*pos_y) += (*vel_y);
+}
+
+// Função para fazer a nave sair de um lado para o outro
+void Limites_Nave(float *pos_x, float *pos_y){
+    float margem = 32.0f;
+    
+    if((*pos_x) > LARGURA_VIRTUAL + margem){
+        (*pos_x) = -margem;
+    }
+    else if((*pos_x) < -margem){
+        (*pos_x) = LARGURA_VIRTUAL + margem;
+    }
+    if((*pos_y) > ALTURA_VIRTUAL + margem){
+        (*pos_y) = -margem;
+    }
+    else if((*pos_y) < -margem){
+        (*pos_y) = ALTURA_VIRTUAL + margem;
+    }
 }
