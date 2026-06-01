@@ -624,39 +624,39 @@ void Anima_Propulsor(float *angulo, Texture2D textura_idle, Texture2D textura_pr
     DrawTexturePro(textura_ativa, nave_hitbox_source, nave_hitbox_dest, pivo, roundf(*angulo), WHITE);
 
     // EIXO X
-    if ((*pos_x) > LARGURA_TELA - 32) {
+    if ((*pos_x) > LARGURA_TELA - 64) {
         Rectangle fantasma_x = {roundf((*pos_x) - LARGURA_TELA), roundf(*pos_y), 64, 64};
         DrawTexturePro(textura_ativa, nave_hitbox_source, fantasma_x, pivo, roundf(*angulo), WHITE);
     }
-    if ((*pos_x) < 32) {
+    if ((*pos_x) < 64) {
         Rectangle fantasma_x = {roundf((*pos_x) + LARGURA_TELA), roundf(*pos_y), 64, 64};
         DrawTexturePro(textura_ativa, nave_hitbox_source, fantasma_x, pivo, roundf(*angulo), WHITE);
     }
 
     // EIXO Y 
-    if ((*pos_y) > ALTURA_TELA - 32) { 
+    if ((*pos_y) > ALTURA_TELA - 64) { 
         Rectangle fantasma_y = {roundf(*pos_x), roundf((*pos_y) - ALTURA_TELA), 64, 64};
         DrawTexturePro(textura_ativa, nave_hitbox_source, fantasma_y, pivo, roundf(*angulo), WHITE);
     }
-    if ((*pos_y) < 32) { 
+    if ((*pos_y) < 64) { 
         Rectangle fantasma_y = {roundf(*pos_x), roundf((*pos_y) + ALTURA_TELA), 64, 64}; 
         DrawTexturePro(textura_ativa, nave_hitbox_source, fantasma_y, pivo, roundf(*angulo), WHITE);
     }
 
     // QUINAS DA TELA
-    if (((*pos_x) > LARGURA_TELA - 32 || (*pos_x) < 32) && 
-        ((*pos_y) > ALTURA_TELA - 32 || (*pos_y) < 32)) {
+    if (((*pos_x) > LARGURA_TELA - 64 || (*pos_x) < 64) && 
+        ((*pos_y) > ALTURA_TELA - 64 || (*pos_y) < 64)) {
         
         float quina_x = *pos_x;
         float quina_y = *pos_y;
 
-        if ((*pos_x) > LARGURA_TELA - 32) quina_x -= LARGURA_TELA;
-        else if ((*pos_x) < 32) quina_x += LARGURA_TELA;
+        if ((*pos_x) > LARGURA_TELA - 64) quina_x -= LARGURA_TELA;
+        else if ((*pos_x) < 64) quina_x += LARGURA_TELA;
 
-        if ((*pos_y) > ALTURA_TELA - 32) quina_y -= ALTURA_TELA;
-        else if ((*pos_y) < 32) quina_y += ALTURA_TELA;
+        if ((*pos_y) > ALTURA_TELA - 64) quina_y -= ALTURA_TELA;
+        else if ((*pos_y) < 64) quina_y += ALTURA_TELA;
 
-        Rectangle fantasma_quina = {roundf(quina_x), roundf(quina_y), 32, 32};
+        Rectangle fantasma_quina = {roundf(quina_x), roundf(quina_y), 64, 64};
         DrawTexturePro(textura_ativa, nave_hitbox_source, fantasma_quina, pivo, roundf(*angulo), WHITE);
     }
 }
@@ -697,7 +697,7 @@ float move_y = sinf(angulo_radianos) * velocidade;
 
 // Função para fazer a nave sair de um lado para o outro
 void Limites_Nave(float *pos_x, float *pos_y){
-    float margem = 32.0f;
+    float margem = 64.0f;
     
     //EIXO X
     if((*pos_x) > LARGURA_TELA + margem){
