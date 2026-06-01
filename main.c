@@ -12,11 +12,6 @@ int main(void){
     SetExitKey(KEY_NULL); // Impede que a tecla ESC feche o jogo
     SetTargetFPS(60);
 
-    // Criação da câmera virtual
-    RenderTexture2D camera_virtual = LoadRenderTexture(LARGURA_VIRTUAL, ALTURA_VIRTUAL);
-    // Aplicar o filter na câmera inteira (para não esticar as imagens)
-    SetTextureFilter(camera_virtual.texture, TEXTURE_FILTER_POINT);
-
     //Carrega o Struct com as "infos" do jogo
     Contextos_Jogo jogo = { 0 };
 
@@ -30,8 +25,8 @@ int main(void){
     jogo.velocidade_animacao = 10;
     jogo.opcao_selecionada = 0;
     jogo.velocidade_animacao_seta = 5;
-    jogo.pos_x_nave = LARGURA_VIRTUAL / 2;
-    jogo.pos_y_nave = ALTURA_VIRTUAL / 2;
+    jogo.pos_x_nave = LARGURA_TELA / 2;
+    jogo.pos_y_nave = ALTURA_TELA / 2;
     jogo.vel_x_nave = 0.0f;
     jogo.vel_y_nave = 0.0f;
 
@@ -45,7 +40,6 @@ int main(void){
                 break;
 
             case MENU:
-                Atualizar_Menu(&estado_atual);
                 Escolhe_Menu(&jogo.opcao_selecionada, &estado_atual);
                 Atualiza_Seta(&jogo.frame_atual, &jogo.contador_tempo, jogo.velocidade_animacao_seta);
                 break;
@@ -72,6 +66,8 @@ int main(void){
 
             case LOAD_IN_GAME:
                 Sai_Menu(&estado_atual, PAUSE);
+                Escolhe_Load_In_Game(&jogo.opcao_selecionada, &estado_atual);
+
                 break;
             
 
@@ -84,6 +80,8 @@ int main(void){
 
             case LOAD_OUT_GAME:
                 Sai_Menu(&estado_atual, MENU);
+                Escolhe_Load_Out_Game(&jogo.opcao_selecionada, &estado_atual);
+
                 break;
 
             case BEST_SCORES:
@@ -91,13 +89,13 @@ int main(void){
                 break;
         }
 
-        BeginTextureMode(camera_virtual);
+        BeginDrawing();
         ClearBackground(BLACK);
 
             switch (estado_atual)
             {
                 case LOGO: //Desenha a tela de "launch" do game
-                    Desenha_Texto_Centralizado("ASTEROIDZ REMAKE", (ALTURA_VIRTUAL / 2) - 25, 20, WHITE);
+                    Desenha_Texto_Centralizado("ASTEROIDZ REMAKE", (ALTURA_TELA / 2) - 25, 60, WHITE);
                     break;
                  
                 case MENU: //É o menu... é só isso mesmo
@@ -112,11 +110,10 @@ int main(void){
                     break;
 
                 case SAVE:
-                        Desenha_Load();
                     break;
 
                 case LOAD_IN_GAME:
-                        Desenha_Load();
+                    Desenha_Load(&jogo.opcao_selecionada);
                     break;
 
                 case PAUSE: //Menu de pausa, ainda não sei se tudo vai ser perdido se pausar o jogo
@@ -125,27 +122,16 @@ int main(void){
                  break;
 
                 case LOAD_OUT_GAME:
-                    Desenha_Load();
+                    Desenha_Load(&jogo.opcao_selecionada);
                     break;
 
                 case BEST_SCORES:
 
                     break;
             }
-        EndTextureMode();
-
-        BeginDrawing();
-        ClearBackground(BLACK);
-
-        // ESTICAR TUDO
-        Rectangle origem_camera = {0.0f, 0.0f, (float)camera_virtual.texture.width, -(float)camera_virtual.texture.height};
-        Rectangle destino_monitor = {0.0f, 0.0f, (float)LARGURA_TELA, (float)ALTURA_TELA};
-
-        // Desenha a tela pequena esticada para a tela grande
-        DrawTexturePro(camera_virtual.texture, origem_camera, destino_monitor, (Vector2){ 0, 0 }, 0.0f, WHITE);
-
-        EndDrawing();
-    }
-    
-    }
+            EndDrawing();
+        }
+        CloseWindow();
+        return 0;
+}
     

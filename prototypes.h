@@ -7,10 +7,6 @@
 #define LARGURA_TELA 1200
 #define ALTURA_TELA 800
 
-#define ESCALA_VIRTUAL 2
-#define LARGURA_VIRTUAL (LARGURA_TELA/ESCALA_VIRTUAL)
-#define ALTURA_VIRTUAL (ALTURA_TELA/ESCALA_VIRTUAL)
-
 
 //Definição dos estados do jogo
 typedef enum {
@@ -21,6 +17,14 @@ typedef enum {
     SAVE,
     LOAD_OUT_GAME,
     LOAD_IN_GAME,
+    LOAD_1,
+    LOAD_2,
+    LOAD_3,
+    LOAD_4,
+    LOAD_5,
+    LOAD_6,
+    LOAD_7,
+    LOAD_8,
     BEST_SCORES,
     SAIR
 } GameState;
@@ -58,7 +62,6 @@ void Desenha_Menu_Pausa(int *opcao_selecionada);
 void Carregar_Texturas(Contextos_Jogo *ctx);
 void Descarregar_Texturas(Contextos_Jogo *ctx);
 void Atualizar_Logo(GameState *estado, int *temporizador);
-void Atualizar_Menu(GameState *estado);
 void Despausar_Jogo(GameState *estado);
 void Mover_Nave(float *velocidade);
 void Gira_Nave(float *angulo);
@@ -73,7 +76,14 @@ void Acelera_Nave(float *vel_x, float *vel_y, float *pos_x, float *pos_y, float 
 void Anima_Propulsor(float *angulo, Texture2D textura_idle, Texture2D textura_propulsao, int *framerate, Vector2 pivo, float *pos_x, float *pos_y);
 void Sai_Menu(GameState *estado, GameState estado_desejado);
 void Limites_Nave(float *pos_x, float *pos_y);
-void Desenha_Load(void);
+void Desenha_Load(int *opcao_selecionada);
+void Desconta_Tamanho(const char* texto, float pos_x, float pos_y, int tamanho_fonte, Color cor);
+void Escolhe_Load_Out_Game(int *opcao_selecionada, GameState *estado);
+void Escolhe_Load_In_Game(int *opcao_selecionada, GameState *estado);
+
+
+
+
 
 
 #endif

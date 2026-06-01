@@ -5,7 +5,7 @@ void Carregar_Texturas(Contextos_Jogo *ctx) {
     ctx->Nave = LoadTexture("sprites/nave.png");
     SetTextureFilter(ctx->Nave, TEXTURE_FILTER_POINT);
     
-    ctx->pivo_nave = (Vector2){ 16, 16 };
+    ctx->pivo_nave = (Vector2){ 32, 32 };
     
     ctx->Nave_Propulsor = LoadTexture("sprites/nave_propulsor.png");
     SetTextureFilter(ctx->Nave_Propulsor, TEXTURE_FILTER_POINT);
@@ -25,8 +25,9 @@ void Carregar_Texturas(Contextos_Jogo *ctx) {
 
 void Descarregar_Texturas(Contextos_Jogo *ctx){
     UnloadTexture(ctx->Nave);
+    UnloadTexture(ctx->Nave_Propulsor);
     UnloadTexture(ctx->Asteroid_1);
     UnloadTexture(ctx->Asteroid_2);
     UnloadTexture(ctx->Asteroid_3);
-
+    UnloadTexture(ctx->Pink_Arrow);
 }
