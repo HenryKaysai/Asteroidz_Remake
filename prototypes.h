@@ -6,6 +6,8 @@
 
 #define LARGURA_TELA 1200
 #define ALTURA_TELA 800
+#define MAX_TIROS 10
+
 
 
 //Definição dos estados do jogo
@@ -29,6 +31,17 @@ typedef enum {
     SAIR
 } GameState;
 
+//Definição de um projetil da nave
+typedef struct{
+    float pos_x;
+    float pos_y;
+    float vel_x;
+    float vel_y;
+    float angulo;
+    bool ativo;
+}Projetil;
+
+
 //Carregamento das texturas e variáveis utilitárias
 typedef struct{
     //texturas
@@ -38,6 +51,8 @@ typedef struct{
     Texture2D Asteroid_2;
     Texture2D Asteroid_3;
     Texture2D Pink_Arrow;
+    Texture2D Projetil;
+    Vector2 pivo_projetil;
     Vector2 pivo_nave;
     Vector2 pivo_seta;
 
@@ -52,8 +67,10 @@ typedef struct{
     int velocidade_animacao;
     int velocidade_animacao_seta;
     int opcao_selecionada;
+    Projetil tiros[MAX_TIROS];
 
 }Contextos_Jogo;
+
 
 
 // Protótipos das funções
@@ -80,8 +97,8 @@ void Desenha_Load(int *opcao_selecionada);
 void Desconta_Tamanho(const char* texto, float pos_x, float pos_y, int tamanho_fonte, Color cor);
 void Escolhe_Load_Out_Game(int *opcao_selecionada, GameState *estado);
 void Escolhe_Load_In_Game(int *opcao_selecionada, GameState *estado);
-
-
+void Atira_Nave(Projetil tiros[], float pos_x_nave, float pos_y_nave, float angulo_nave);
+void Atualiza_Tiro(int *framerate, Projetil tiros[], Texture2D textura_projetil, Vector2 pivo_projetil);
 
 
 

@@ -674,12 +674,12 @@ void Gira_Nave(float *angulo){
 
 // Função para acelerar os propulsores da nave
 void Acelera_Nave(float *vel_x, float *vel_y, float *pos_x, float *pos_y, float *angulo){
-float velocidade = 0.1f; 
-float angulo_ajustado = (*angulo) - 90.0f;//o sprite começa apontado para cima
-float angulo_radianos = angulo_ajustado * (PI / 180.0f);//math.h opera em radianos
-float move_x = cosf(angulo_radianos) * velocidade;
-float move_y = sinf(angulo_radianos) * velocidade;
-// o angulo do jogo acumula infinitamente então o cos e sen geram valores entre -1 e 1
+    float velocidade = 0.1f; 
+    float angulo_ajustado = (*angulo) - 90.0f;//o sprite começa apontado para cima
+    float angulo_radianos = angulo_ajustado * (PI / 180.0f);//math.h opera em radianos
+    float move_x = cosf(angulo_radianos) * velocidade;
+    float move_y = sinf(angulo_radianos) * velocidade;
+    // o angulo do jogo acumula infinitamente então o cos e sen geram valores entre -1 e 1
 
     if(IsKeyDown(KEY_W) || IsKeyDown(KEY_UP)){//acelera a posição do sprite na direção do bico da nave
         ((*vel_x) += move_x);
@@ -715,3 +715,67 @@ void Limites_Nave(float *pos_x, float *pos_y){
         (*pos_y) += ALTURA_TELA;
     }
 }
+
+// Função para atirar com a nave
+void Atira_Nave(Projetil tiros[], float pos_x_nave, float pos_y_nave, float angulo_nave){    
+    if(IsKeyPressed(KEY_SPACE)){
+        for(int i = 0; i < MAX_TIROS; i++){
+            if(tiros[i].ativo == false){
+                tiros[i].ativo = true;
+
+                float pos_inicial_x = pos_x_nave;
+                float pos_inicial_y = pos_y_nave;
+
+                if(pos_inicial_x > LARGURA_TELA){
+                    pos_inicial_x -= LARGURA_TELA;
+                }
+                else if(pos_inicial_x < 0){
+                    pos_inicial_x += LARGURA_TELA;
+                }
+
+                if(pos_inicial_y > ALTURA_TELA){
+                    pos_inicial_y -= ALTURA_TELA;
+                }
+                else if(pos_inicial_y < 0){
+                    pos_inicial_y += ALTURA_TELA;
+                }
+
+                float raio_nave = 32.0f;
+                float velocidade_tiro = 15.0f;
+                float angulo_ajustado = angulo_nave - 90.0f;
+                float angulo_radianos = angulo_ajustado * (PI / 180.0f);
+
+                tiros[i].pos_x = pos_inicial_x + (cosf(angulo_radianos) * raio_nave);
+                tiros[i].pos_y = pos_inicial_y + (sinf(angulo_radianos) * raio_nave);
+                tiros[i].angulo = angulo_nave;
+                tiros[i].vel_x = cosf(angulo_radianos) * velocidade_tiro;
+                tiros[i].vel_y = sinf(angulo_radianos) * velocidade_tiro;
+
+                break;
+            }
+        }
+    }
+}
+
+// Função que desenha o tiro da nave
+void Atualiza_Tiro(int *framerate, Projetil tiros[], Texture2D textura_projetil, Vector2 pivo_projetil){
+    for(int i = 0; i < MAX_TIROS; i++){
+        if(tiros[i].ativo == true){
+            tiros[i].pos_x += tiros[i].vel_x;
+            tiros[i].pos_y += tiros[i].vel_y;
+            Rectangle tiro_hitbox_source = {(*framerate) * 4, 0, 4, 16};
+            Rectangle tiro_hitbox_dest = {roundf(tiros[i].pos_x), roundf(tiros[i].pos_y), 4, 16};
+
+            DrawTexturePro(textura_projetil, tiro_hitbox_source, tiro_hitbox_dest, pivo_projetil, tiros[i].angulo, WHITE);
+
+            if(tiros[i].pos_x < -64 || tiros[i].pos_x > LARGURA_TELA + 64){
+                tiros[i].ativo = false;
+            }
+            if(tiros[i].pos_y < -64 || tiros[i].pos_y > ALTURA_TELA + 64){
+                tiros[i].ativo = false;
+            }
+        }
+    }
+
+}
+
