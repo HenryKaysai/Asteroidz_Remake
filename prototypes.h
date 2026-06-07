@@ -6,7 +6,7 @@
 
 #define LARGURA_TELA 1200
 #define ALTURA_TELA 800
-#define MAX_TIROS 10
+#define MAX_TIROS 3
 
 
 
@@ -52,9 +52,11 @@ typedef struct{
     Texture2D Asteroid_3;
     Texture2D Pink_Arrow;
     Texture2D Projetil;
+    Texture2D Barra_Carregamento;
     Vector2 pivo_projetil;
     Vector2 pivo_nave;
     Vector2 pivo_seta;
+    Vector2 pivo_barra;
 
     //variáveis
     float angulo_nave;
@@ -63,10 +65,12 @@ typedef struct{
     float vel_x_nave;
     float vel_y_nave;
     int frame_atual;
+    int frames_barra;
     int contador_tempo;
     int velocidade_animacao;
     int velocidade_animacao_seta;
     int opcao_selecionada;
+    int contador;
     Projetil tiros[MAX_TIROS];
 
 }Contextos_Jogo;
@@ -97,10 +101,10 @@ void Desenha_Load(int *opcao_selecionada);
 void Desconta_Tamanho(const char* texto, float pos_x, float pos_y, int tamanho_fonte, Color cor);
 void Escolhe_Load_Out_Game(int *opcao_selecionada, GameState *estado);
 void Escolhe_Load_In_Game(int *opcao_selecionada, GameState *estado);
-void Atira_Nave(Projetil tiros[], float pos_x_nave, float pos_y_nave, float angulo_nave);
+void Atira_Nave(int *temporizador, Projetil tiros[], float pos_x_nave, float pos_y_nave, float angulo_nave);
 void Atualiza_Tiro(int *framerate, Projetil tiros[], Texture2D textura_projetil, Vector2 pivo_projetil);
-
-
+void Atualiza_Barra(int temporizador_tiro, int *framerate_barra);
+void Desenha_Barra(int *framerate, Vector2 pivo_barra, Texture2D textura_barra);
 
 
 #endif

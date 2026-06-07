@@ -661,7 +661,6 @@ void Anima_Propulsor(float *angulo, Texture2D textura_idle, Texture2D textura_pr
     }
 }
 
-
 //Função para rotacionar a nave
 void Gira_Nave(float *angulo){
     if(IsKeyDown(KEY_D) || IsKeyDown(KEY_RIGHT)) *angulo += 3.0f;
@@ -717,8 +716,14 @@ void Limites_Nave(float *pos_x, float *pos_y){
 }
 
 // Função para atirar com a nave
-void Atira_Nave(Projetil tiros[], float pos_x_nave, float pos_y_nave, float angulo_nave){    
-    if(IsKeyPressed(KEY_SPACE)){
+void Atira_Nave(int *temporizador, Projetil tiros[], float pos_x_nave, float pos_y_nave, float angulo_nave){    
+    if (*temporizador < 60) {
+        (*temporizador)++;
+    }
+
+    // Se a tecla estiver pressionada E a arma estiver carregada
+    if(IsKeyPressed(KEY_SPACE) && (*temporizador) >= 60){
+        
         for(int i = 0; i < MAX_TIROS; i++){
             if(tiros[i].ativo == false){
                 tiros[i].ativo = true;
@@ -751,7 +756,10 @@ void Atira_Nave(Projetil tiros[], float pos_x_nave, float pos_y_nave, float angu
                 tiros[i].vel_x = cosf(angulo_radianos) * velocidade_tiro;
                 tiros[i].vel_y = sinf(angulo_radianos) * velocidade_tiro;
 
+                // A nave atirou, zera o timer
+                *temporizador = 0; 
                 break;
+            
             }
         }
     }
@@ -779,3 +787,18 @@ void Atualiza_Tiro(int *framerate, Projetil tiros[], Texture2D textura_projetil,
 
 }
 
+//Função para gerar a barra de carregamento dos tiros da nave
+void Atualiza_Barra(int temporizador_tiro, int *framerate_barra){
+   // A cada 10 frames a barra avança 1 frame
+   *framerate_barra = (temporizador_tiro / 12);
+
+   if(*framerate_barra > 5){
+        *framerate_barra = 5;
+   }
+}
+
+void Desenha_Barra(int *framerate, Vector2 pivo_barra, Texture2D textura_barra){
+    Rectangle barra_hitbox_source = {(*framerate) * 150, 0 , 150, 25};
+    Rectangle barra_hitbox_dest = {LARGURA_TELA - 125, ALTURA_TELA - 35 , 150, 25};
+    DrawTexturePro(textura_barra, barra_hitbox_source, barra_hitbox_dest, pivo_barra, 0, WHITE);
+}

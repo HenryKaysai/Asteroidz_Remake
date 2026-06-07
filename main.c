@@ -29,7 +29,8 @@ int main(void){
     jogo.pos_y_nave = ALTURA_TELA / 2;
     jogo.vel_x_nave = 0.0f;
     jogo.vel_y_nave = 0.0f;
-
+    jogo.contador = 60;
+    jogo.frames_barra = 5;
      
     while (!WindowShouldClose() && estado_atual != SAIR)
     {
@@ -47,11 +48,12 @@ int main(void){
             case JOGANDO:
                 HideCursor();
                 DisableCursor();
+                Atualiza_Barra(jogo.contador, &jogo.frames_barra);
                 Gira_Nave(&jogo.angulo_nave);
                 Acelera_Nave(&jogo.vel_x_nave, &jogo.vel_y_nave, &jogo.pos_x_nave, &jogo.pos_y_nave, &jogo.angulo_nave);
                 Limites_Nave(&jogo.pos_x_nave, &jogo.pos_y_nave);
                 Atualiza_Nave(&jogo.frame_atual, &jogo.contador_tempo, jogo.velocidade_animacao);
-                Atira_Nave(jogo.tiros, jogo.pos_x_nave, jogo.pos_y_nave, jogo.angulo_nave);
+                Atira_Nave(&jogo.contador, jogo.tiros, jogo.pos_x_nave, jogo.pos_y_nave, jogo.angulo_nave);
                 
                 //Entra no meu de pausa se apertar ESC
                 if(IsKeyPressed(KEY_ESCAPE)){
@@ -108,7 +110,7 @@ int main(void){
                 case JOGANDO://Aqui tem que trabalhar a aparência do jogo e o jogo xD
                     Anima_Propulsor(&jogo.angulo_nave, jogo.Nave, jogo.Nave_Propulsor, &jogo.frame_atual, jogo.pivo_nave, &jogo.pos_x_nave, &jogo.pos_y_nave);
                     Atualiza_Tiro(&jogo.frame_atual, jogo.tiros, jogo.Projetil, jogo.pivo_projetil);
-
+                    Desenha_Barra(&jogo.frames_barra,jogo.pivo_barra, jogo.Barra_Carregamento);
                     break;
 
                 case SAVE:
