@@ -6,17 +6,20 @@
 int main(void){
     //Incialização
     GameState estado_atual = LOGO;
-    int temporizador_logo = 0;
 
     InitWindow(LARGURA_TELA, ALTURA_TELA, "Asteroidz_Remake");
     SetExitKey(KEY_NULL); // Impede que a tecla ESC feche o jogo
     SetTargetFPS(60);
+    InitAudioDevice();
+    SetMasterVolume(0.79f);
 
     //Carrega o Struct com as "infos" do jogo
     Contextos_Jogo jogo = { 0 };
+    Som som = {0};
 
     //Carrega todas as texturas de uma vez
     Carregar_Texturas(&jogo);
+    Carregar_Som(&som);
     
     //Variáveis de inicialização
     jogo.angulo_nave = 0.0f;
@@ -31,17 +34,26 @@ int main(void){
     jogo.vel_y_nave = 0.0f;
     jogo.contador = 60;
     jogo.frames_barra = 5;
+    jogo.temporizador_logo = 0;
      
     while (!WindowShouldClose() && estado_atual != SAIR)
     {
         switch (estado_atual)
         {
             case LOGO:
-                Atualizar_Logo(&estado_atual, &temporizador_logo);
+                if (jogo.temporizador_logo == 0) {
+                    PlaySound(som.logo_sound);
+                }
+                Atualizar_Logo(&estado_atual, &jogo.temporizador_logo);
                 break;
 
             case MENU:
-                Escolhe_Menu(&jogo.opcao_selecionada, &estado_atual);
+                if (!IsMusicStreamPlaying(som.theme_sound)){
+                    PlayMusicStream(som.theme_sound);
+                }
+                UpdateMusicStream(som.theme_sound);
+
+                Escolhe_Menu(&som.theme_sound, &jogo.opcao_selecionada, &estado_atual);
                 Atualiza_Seta(&jogo.frame_atual, &jogo.contador_tempo, jogo.velocidade_animacao_seta);
                 break;
 
@@ -135,6 +147,9 @@ int main(void){
             }
             EndDrawing();
         }
+        Descarrega_Som(&som);
+        CloseAudioDevice();
+        Descarregar_Texturas(&jogo);
         CloseWindow();
         return 0;
 }

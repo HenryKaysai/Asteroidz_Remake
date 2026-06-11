@@ -41,6 +41,11 @@ typedef struct{
     bool ativo;
 }Projetil;
 
+// Estrutura para os sons do jogo
+typedef struct{
+    Sound logo_sound;
+    Music theme_sound;
+}Som;
 
 //Carregamento das texturas e variáveis utilitárias
 typedef struct{
@@ -64,6 +69,7 @@ typedef struct{
     float pos_y_nave;
     float vel_x_nave;
     float vel_y_nave;
+    int temporizador_logo;
     int frame_atual;
     int frames_barra;
     int contador_tempo;
@@ -81,14 +87,16 @@ typedef struct{
 void Desenha_Menu_Principal(int *opcao_selecionada);
 void Desenha_Menu_Pausa(int *opcao_selecionada);
 void Carregar_Texturas(Contextos_Jogo *ctx);
+void Carregar_Som(Som *ctx);
 void Descarregar_Texturas(Contextos_Jogo *ctx);
+void Descarrega_Som(Som *ctx);
 void Atualizar_Logo(GameState *estado, int *temporizador);
 void Despausar_Jogo(GameState *estado);
 void Mover_Nave(float *velocidade);
 void Gira_Nave(float *angulo);
 void Atualiza_Nave(int *frame, int *contador, int velocidade);
 void Desenha_Texto_Centralizado(const char* texto, int pos_y, int tamanho_fonte, Color cor);
-void Escolhe_Menu(int *opcao_selecionada, GameState *estado);
+void Escolhe_Menu(Music *musica, int *opcao_selecionada, GameState *estado);
 void Escolhe_Menu_Pausa(int *opcao_selecionada, GameState *estado);
 void Atualiza_Seta(int *frame, int *contador, int velocidade);
 void Desenha_Seta_Menu_Principal(int *framerate, int *opcao_selecionada, Texture2D textura, Vector2 pivo);

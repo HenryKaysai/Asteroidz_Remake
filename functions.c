@@ -15,7 +15,7 @@ void Sai_Menu(GameState *estado, GameState estado_desejado){
 //Atualiza o estado LOGO para estado MENU
 void Atualizar_Logo(GameState *estado, int *temporizador){
     (*temporizador)++;
-    if ((*temporizador) > 180) { //Quando se passarem 3 segundos, o jogo sai do logo e vai para o menu (60FPS * 3)
+    if ((*temporizador) > 300) { //Quando se passarem 3 segundos, o jogo sai do logo e vai para o menu (60FPS * 3)
         *estado = MENU;
     }
 }
@@ -436,7 +436,7 @@ void Escolhe_Load_In_Game(int *opcao_selecionada, GameState *estado){
 }
 
 // Função para seleção de opções do Menu Principal
-void Escolhe_Menu(int *opcao_selecionada, GameState *estado){
+void Escolhe_Menu(Music *musica, int *opcao_selecionada, GameState *estado){
     int inicio_y = (ALTURA_TELA / 2) + 60;
     // hit box para passar o mouse ou selecionar
     Rectangle start_hit_box = {0, inicio_y, LARGURA_TELA, 32};
@@ -480,6 +480,7 @@ void Escolhe_Menu(int *opcao_selecionada, GameState *estado){
         case 0:
 
             if(IsKeyPressed(KEY_ENTER) || IsMouseButtonPressed(MOUSE_BUTTON_LEFT)){
+                StopMusicStream(*musica);
                 *estado = JOGANDO;
             }
             break;
@@ -797,6 +798,7 @@ void Atualiza_Barra(int temporizador_tiro, int *framerate_barra){
    }
 }
 
+// Função para desenhar a barra de carregamento dos tiros da nave
 void Desenha_Barra(int *framerate, Vector2 pivo_barra, Texture2D textura_barra){
     Rectangle barra_hitbox_source = {(*framerate) * 150, 0 , 150, 25};
     Rectangle barra_hitbox_dest = {LARGURA_TELA - 125, ALTURA_TELA - 35 , 150, 25};
