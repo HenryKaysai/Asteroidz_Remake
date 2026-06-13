@@ -58,6 +58,9 @@ typedef struct{
     Texture2D Pink_Arrow;
     Texture2D Projetil;
     Texture2D Barra_Carregamento;
+    Texture2D Estrelas_Maiores;
+    Texture2D Nebulosa;
+    Texture2D Estrelas_Menores;
     Vector2 pivo_projetil;
     Vector2 pivo_nave;
     Vector2 pivo_seta;
@@ -81,6 +84,18 @@ typedef struct{
 
 }Contextos_Jogo;
 
+typedef struct
+{
+    float nebulosa_pos_y;
+    float nebulosa_pos_x;
+    float nebulosa_vel;
+    float estrelas_menores_pos_y;
+    float estrelas_menores_pos_x;
+    float estrelas_menores_vel;
+    float estrelas_maiores_pos_y;
+    float estrelas_maiores_pos_x;
+    float estrelas_maiores_vel;
+}Parallax;
 
 
 // Protótipos das funções
@@ -113,6 +128,12 @@ void Atira_Nave(int *temporizador, Projetil tiros[], float pos_x_nave, float pos
 void Atualiza_Tiro(int *framerate, Projetil tiros[], Texture2D textura_projetil, Vector2 pivo_projetil);
 void Atualiza_Barra(int temporizador_tiro, int *framerate_barra);
 void Desenha_Barra(int *framerate, Vector2 pivo_barra, Texture2D textura_barra);
+void Move_Cenario(float *pos_y, float *pos_x, float *vel_x_nave, float *vel_y_nave, float peso_parallax);
+void Desenha_Cenario(Texture2D textura, float *pos_x, float *pos_y);
+
+
+
+
 
 
 #endif

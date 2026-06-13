@@ -16,7 +16,7 @@ int main(void){
     //Carrega o Struct com as "infos" do jogo
     Contextos_Jogo jogo = { 0 };
     Som som = {0};
-
+    Parallax parallax = {0};
     //Carrega todas as texturas de uma vez
     Carregar_Texturas(&jogo);
     Carregar_Som(&som);
@@ -60,6 +60,9 @@ int main(void){
             case JOGANDO:
                 HideCursor();
                 DisableCursor();
+                Move_Cenario(&parallax.nebulosa_pos_y, &parallax.nebulosa_pos_x, &jogo.vel_x_nave, &jogo.vel_y_nave, 0.2f);
+                Move_Cenario(&parallax.estrelas_menores_pos_y, &parallax.estrelas_menores_pos_x, &jogo.vel_x_nave, &jogo.vel_y_nave, 0.4f);
+                Move_Cenario(&parallax.estrelas_maiores_pos_y, &parallax.estrelas_maiores_pos_x, &jogo.vel_x_nave, &jogo.vel_y_nave, 0.6f);
                 Atualiza_Barra(jogo.contador, &jogo.frames_barra);
                 Gira_Nave(&jogo.angulo_nave);
                 Acelera_Nave(&jogo.vel_x_nave, &jogo.vel_y_nave, &jogo.pos_x_nave, &jogo.pos_y_nave, &jogo.angulo_nave);
@@ -120,9 +123,14 @@ int main(void){
                     break;
 
                 case JOGANDO://Aqui tem que trabalhar a aparência do jogo e o jogo xD
+                    Desenha_Cenario(jogo.Nebulosa, &parallax.nebulosa_pos_x, &parallax.nebulosa_pos_y);
+                    Desenha_Cenario(jogo.Estrelas_Menores, &parallax.estrelas_menores_pos_x, &parallax.estrelas_menores_pos_y);
+                    Desenha_Cenario(jogo.Estrelas_Maiores, &parallax.estrelas_maiores_pos_x, &parallax.estrelas_maiores_pos_y);
                     Anima_Propulsor(&jogo.angulo_nave, jogo.Nave, jogo.Nave_Propulsor, &jogo.frame_atual, jogo.pivo_nave, &jogo.pos_x_nave, &jogo.pos_y_nave);
                     Atualiza_Tiro(&jogo.frame_atual, jogo.tiros, jogo.Projetil, jogo.pivo_projetil);
                     Desenha_Barra(&jogo.frames_barra,jogo.pivo_barra, jogo.Barra_Carregamento);
+                    
+
                     break;
 
                 case SAVE:

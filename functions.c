@@ -804,3 +804,45 @@ void Desenha_Barra(int *framerate, Vector2 pivo_barra, Texture2D textura_barra){
     Rectangle barra_hitbox_dest = {LARGURA_TELA - 125, ALTURA_TELA - 35 , 150, 25};
     DrawTexturePro(textura_barra, barra_hitbox_source, barra_hitbox_dest, pivo_barra, 0, WHITE);
 }
+
+//////////////////////////////////////////////////
+//Funções de Parallax
+//////////////////////////////////////////////////
+
+void Move_Cenario(float *pos_y, float *pos_x, float *vel_x_nave, float *vel_y_nave, float peso_parallax){
+    (*pos_y) -= (*vel_y_nave * peso_parallax);
+    (*pos_x) -= (*vel_x_nave * peso_parallax);
+
+    // Borda Direita / Esquerda
+    if((*pos_x) >= LARGURA_TELA){
+        (*pos_x) -= LARGURA_TELA;
+    }
+    else if((*pos_x) < 0){
+        (*pos_x) += LARGURA_TELA;
+    }
+
+    // Borda Baixo / Cima
+    if((*pos_y) >= ALTURA_TELA){
+        (*pos_y) -= ALTURA_TELA;
+    }
+    else if((*pos_y) < 0){
+        (*pos_y) += ALTURA_TELA;
+    }
+}
+
+void Desenha_Cenario(Texture2D textura, float *pos_x, float *pos_y){
+    int px = roundf(*pos_x);
+    int py = roundf(*pos_y);
+
+    // Quadrante Principal (Sudeste)
+    DrawTexture(textura, px, py, WHITE);
+    
+    // Quadrante Esquerdo (Sudoeste)
+    DrawTexture(textura, px - LARGURA_TELA, py, WHITE);
+    
+    // Quadrante Superior (Nordeste)
+    DrawTexture(textura, px, py - ALTURA_TELA, WHITE);
+    
+    // Quadrante Diagonal (Noroeste)
+    DrawTexture(textura, px - LARGURA_TELA, py - ALTURA_TELA, WHITE);
+}

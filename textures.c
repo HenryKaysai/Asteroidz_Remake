@@ -28,6 +28,15 @@ void Carregar_Texturas(Contextos_Jogo *ctx) {
 
     ctx->Barra_Carregamento = LoadTexture("sprites/barra_carregamento_6_frames.png");
     SetTextureFilter(ctx-> Barra_Carregamento, TEXTURE_FILTER_POINT);
+
+    ctx->Estrelas_Maiores = LoadTexture("sprites/stars_bigger.png");
+    SetTextureFilter(ctx-> Estrelas_Maiores, TEXTURE_FILTER_POINT);
+
+    ctx->Nebulosa = LoadTexture("sprites/purple_nebula.png");
+    SetTextureFilter(ctx-> Nebulosa, TEXTURE_FILTER_POINT);
+
+    ctx->Estrelas_Menores = LoadTexture("sprites/stars_smaller.png");
+    SetTextureFilter(ctx-> Estrelas_Menores, TEXTURE_FILTER_POINT);
 }
 
 void Descarregar_Texturas(Contextos_Jogo *ctx){
@@ -39,4 +48,7 @@ void Descarregar_Texturas(Contextos_Jogo *ctx){
     UnloadTexture(ctx->Pink_Arrow);
     UnloadTexture(ctx->Projetil);
     UnloadTexture(ctx->Barra_Carregamento);
+    UnloadTexture(ctx->Estrelas_Menores);
+    UnloadTexture(ctx->Estrelas_Maiores);
+    UnloadTexture(ctx->Nebulosa);
 }
