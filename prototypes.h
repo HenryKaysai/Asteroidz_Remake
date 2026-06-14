@@ -45,6 +45,11 @@ typedef struct{
 typedef struct{
     Sound logo_sound;
     Music theme_sound;
+    Sound missile_sound;
+    int marcador_som_engine;
+    float volume_engine;
+    Music idle_engine;
+    Music engine;
 }Som;
 
 //Carregamento das texturas e variáveis utilitárias
@@ -117,20 +122,20 @@ void Atualiza_Seta(int *frame, int *contador, int velocidade);
 void Desenha_Seta_Menu_Principal(int *framerate, int *opcao_selecionada, Texture2D textura, Vector2 pivo);
 void Desenha_Seta_Menu_Pausa(int *framerate, int *opcao_selecionada, Texture2D textura, Vector2 pivo);
 void Acelera_Nave(float *vel_x, float *vel_y, float *pos_x, float *pos_y, float *angulo);
-void Anima_Propulsor(float *angulo, Texture2D textura_idle, Texture2D textura_propulsao, int *framerate, Vector2 pivo, float *pos_x, float *pos_y);
+void Anima_Propulsor(int *marcador_som, float *angulo, Texture2D textura_idle, Texture2D textura_propulsao, int *framerate, Vector2 pivo, float *pos_x, float *pos_y);
 void Sai_Menu(GameState *estado, GameState estado_desejado);
 void Limites_Nave(float *pos_x, float *pos_y);
 void Desenha_Load(int *opcao_selecionada);
 void Desconta_Tamanho(const char* texto, float pos_x, float pos_y, int tamanho_fonte, Color cor);
 void Escolhe_Load_Out_Game(int *opcao_selecionada, GameState *estado);
 void Escolhe_Load_In_Game(int *opcao_selecionada, GameState *estado);
-void Atira_Nave(int *temporizador, Projetil tiros[], float pos_x_nave, float pos_y_nave, float angulo_nave);
+void Atira_Nave(Sound missile_sound, int *temporizador, Projetil tiros[], float pos_x_nave, float pos_y_nave, float angulo_nave);
 void Atualiza_Tiro(int *framerate, Projetil tiros[], Texture2D textura_projetil, Vector2 pivo_projetil);
 void Atualiza_Barra(int temporizador_tiro, int *framerate_barra);
 void Desenha_Barra(int *framerate, Vector2 pivo_barra, Texture2D textura_barra);
 void Move_Cenario(float *pos_y, float *pos_x, float *vel_x_nave, float *vel_y_nave, float peso_parallax);
 void Desenha_Cenario(Texture2D textura, float *pos_x, float *pos_y);
-
+void Som_Motor(Music engine, int *textura_ativa, float *volume);
 
 
 

@@ -4,9 +4,13 @@
 void Carregar_Som(Som *ctx){
     ctx->logo_sound = LoadSound("sound/LOGO.wav");
     ctx->theme_sound = LoadMusicStream("sound/theme.wav");
+    ctx->missile_sound = LoadSound("sound/missile.wav");
+    ctx->engine = LoadMusicStream("sound/engine.wav");
 }
 
 void Descarrega_Som(Som *ctx){
     UnloadSound(ctx->logo_sound);
     UnloadMusicStream(ctx->theme_sound);
+    UnloadSound(ctx->missile_sound);
+    UnloadMusicStream(ctx->engine);
 }

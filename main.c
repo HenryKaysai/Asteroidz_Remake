@@ -35,6 +35,7 @@ int main(void){
     jogo.contador = 60;
     jogo.frames_barra = 5;
     jogo.temporizador_logo = 0;
+    som.marcador_som_engine = 0;
      
     while (!WindowShouldClose() && estado_atual != SAIR)
     {
@@ -65,10 +66,11 @@ int main(void){
                 Move_Cenario(&parallax.estrelas_maiores_pos_y, &parallax.estrelas_maiores_pos_x, &jogo.vel_x_nave, &jogo.vel_y_nave, 0.6f);
                 Atualiza_Barra(jogo.contador, &jogo.frames_barra);
                 Gira_Nave(&jogo.angulo_nave);
+                Som_Motor(som.engine, &som.marcador_som_engine, &som.volume_engine);
                 Acelera_Nave(&jogo.vel_x_nave, &jogo.vel_y_nave, &jogo.pos_x_nave, &jogo.pos_y_nave, &jogo.angulo_nave);
                 Limites_Nave(&jogo.pos_x_nave, &jogo.pos_y_nave);
                 Atualiza_Nave(&jogo.frame_atual, &jogo.contador_tempo, jogo.velocidade_animacao);
-                Atira_Nave(&jogo.contador, jogo.tiros, jogo.pos_x_nave, jogo.pos_y_nave, jogo.angulo_nave);
+                Atira_Nave(som.missile_sound, &jogo.contador, jogo.tiros, jogo.pos_x_nave, jogo.pos_y_nave, jogo.angulo_nave);
                 
                 //Entra no meu de pausa se apertar ESC
                 if(IsKeyPressed(KEY_ESCAPE)){
@@ -126,7 +128,7 @@ int main(void){
                     Desenha_Cenario(jogo.Nebulosa, &parallax.nebulosa_pos_x, &parallax.nebulosa_pos_y);
                     Desenha_Cenario(jogo.Estrelas_Menores, &parallax.estrelas_menores_pos_x, &parallax.estrelas_menores_pos_y);
                     Desenha_Cenario(jogo.Estrelas_Maiores, &parallax.estrelas_maiores_pos_x, &parallax.estrelas_maiores_pos_y);
-                    Anima_Propulsor(&jogo.angulo_nave, jogo.Nave, jogo.Nave_Propulsor, &jogo.frame_atual, jogo.pivo_nave, &jogo.pos_x_nave, &jogo.pos_y_nave);
+                    Anima_Propulsor(&som.marcador_som_engine, &jogo.angulo_nave, jogo.Nave, jogo.Nave_Propulsor, &jogo.frame_atual, jogo.pivo_nave, &jogo.pos_x_nave, &jogo.pos_y_nave);
                     Atualiza_Tiro(&jogo.frame_atual, jogo.tiros, jogo.Projetil, jogo.pivo_projetil);
                     Desenha_Barra(&jogo.frames_barra,jogo.pivo_barra, jogo.Barra_Carregamento);
                     

@@ -609,8 +609,42 @@ void Atualiza_Nave(int *frame, int *contador, int velocidade){
     }
 }
 
+// Função para tocar o som do motor
+void Som_Motor(Music engine, int *textura_ativa, float *volume){
+    // acelerar
+    if ((*textura_ativa) == 1) {     
+        if (!IsMusicStreamPlaying(engine)) {
+            PlayMusicStream(engine);
+        }
+        // Fade in
+        if ((*volume) < 0.2f) {
+            (*volume) += 0.1f; 
+        }
+        SetMusicVolume(engine, *volume);
+        UpdateMusicStream(engine);
+    }
+    // fade out
+    else {   
+        if (IsMusicStreamPlaying(engine)) {
+            (*volume) -= 0.01f;
+
+            if ((*volume) <= 0.0f) {
+                (*volume) = 0.0f;
+                StopMusicStream(engine);
+            } 
+            else {
+                // Se ainda tem volume, atualiza o nível e continua rodando a fita
+                SetMusicVolume(engine, *volume);
+                UpdateMusicStream(engine); 
+            }
+        }
+    }
+}
+
+
+
 // Função para animar o propulsor da nave e desenhar a nave
-void Anima_Propulsor(float *angulo, Texture2D textura_idle, Texture2D textura_propulsao, int *framerate, Vector2 pivo, float *pos_x, float *pos_y){
+void Anima_Propulsor(int *marcador_som, float *angulo, Texture2D textura_idle, Texture2D textura_propulsao, int *framerate, Vector2 pivo, float *pos_x, float *pos_y){
     Rectangle nave_hitbox_source = {*framerate * 64, 0 ,64, 64};
     Rectangle nave_hitbox_dest = {roundf(*pos_x), roundf(*pos_y), 64, 64};
 
@@ -618,8 +652,10 @@ void Anima_Propulsor(float *angulo, Texture2D textura_idle, Texture2D textura_pr
 
     if(IsKeyDown(KEY_W) || IsKeyDown(KEY_UP)){
         textura_ativa = textura_propulsao;
+        (*marcador_som) = 1;
     }
     else{
+        (*marcador_som) = 0;
         textura_ativa = textura_idle;
     }
     DrawTexturePro(textura_ativa, nave_hitbox_source, nave_hitbox_dest, pivo, roundf(*angulo), WHITE);
@@ -717,14 +753,15 @@ void Limites_Nave(float *pos_x, float *pos_y){
 }
 
 // Função para atirar com a nave
-void Atira_Nave(int *temporizador, Projetil tiros[], float pos_x_nave, float pos_y_nave, float angulo_nave){    
+void Atira_Nave(Sound missile_sound, int *temporizador, Projetil tiros[], float pos_x_nave, float pos_y_nave, float angulo_nave){    
     if (*temporizador < 60) {
         (*temporizador)++;
     }
 
     // Se a tecla estiver pressionada E a arma estiver carregada
     if(IsKeyPressed(KEY_SPACE) && (*temporizador) >= 60){
-        
+        SetSoundVolume(missile_sound, 0.2f);
+        PlaySound(missile_sound);
         for(int i = 0; i < MAX_TIROS; i++){
             if(tiros[i].ativo == false){
                 tiros[i].ativo = true;
