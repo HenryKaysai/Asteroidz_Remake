@@ -90,6 +90,7 @@ int main(void){
                 Limites_Nave(&jogo.player.pos_x, &jogo.player.pos_y);
                 Atualiza_Nave(&jogo.frame_atual, &jogo.contador_tempo, jogo.velocidade_animacao);
                 Atira_Nave(som.missile_sound, &jogo.contador, jogo.tiros, jogo.player.pos_x, jogo.player.pos_y, jogo.player.angulo);
+                Atualiza_Asteroides(&jogo);
                 
                 //Entra no meu de pausa se apertar ESC
                 if(IsKeyPressed(KEY_ESCAPE)){
@@ -147,7 +148,7 @@ int main(void){
                     Anima_Propulsor(&som.marcador_som_engine, &jogo.player.angulo, jogo.Nave, jogo.Nave_Propulsor, &jogo.frame_atual, jogo.pivo_nave, &jogo.player.pos_x, &jogo.player.pos_y);
                     Atualiza_Tiro(&jogo.frame_atual, jogo.tiros, jogo.Projetil, jogo.pivo_projetil);
                     Desenha_Barra(&jogo.frames_barra,jogo.pivo_barra, jogo.Barra_Carregamento);
-                    
+                    Desenha_Asteroides(&jogo);
 
                     break;
 
