@@ -8,6 +8,8 @@
 #define ALTURA_TELA 800
 #define MAX_ASTEROIDES 15
 #define MAX_TIROS 3
+#define TAMANHO_NAVE 64.0f
+#define TAMANHO_ASTEROIDE 96.0f
 
 //Definição dos estados do jogo
 typedef enum {
@@ -60,11 +62,12 @@ typedef struct {
 
 // estrutura pra um asteroide
 typedef struct {
-    float pos_x;
-    float pos_y;
-    float vel_x;
-    float vel_y;
+    float pos_x; 
+    float pos_y; 
+    float vel_x; 
+    float vel_y; 
     float angulo; 
+    float vel_angular;
     bool ativo;
     int tipo; // Qual textura 
 } Asteroide;
@@ -129,7 +132,10 @@ typedef struct
 }Parallax;
 
 
-// Protótipos das funções
+////////////////////////////
+// PROTOTIPOS DAS FUNCOES //
+////////////////////////////
+
 // GERENCIAMENTO DE RECURSOS (Assets)
 void Carregar_Texturas(Contextos_Jogo *ctx);
 void Descarregar_Texturas(Contextos_Jogo *ctx);
@@ -158,14 +164,16 @@ void Desconta_Tamanho(const char* texto, float pos_x, float pos_y, int tamanho_f
 void Atualiza_Barra(int temporizador_tiro, int *framerate_barra);
 void Desenha_Barra(int *framerate, Vector2 pivo_barra, Texture2D textura_barra);
 
+// LÓGICA DE MOVIMENTO
+Aplica_Limites_Circulares(float *pos_x, float *pos_y, float tamanho);
+
 // MECÂNICAS DA NAVE (Player)
 void Gira_Nave(float *angulo);
 void Acelera_Nave(float *vel_x, float *vel_y, float *pos_x, float *pos_y, float *angulo);
-void Limites_Nave(float *pos_x, float *pos_y);
 void Atualiza_Nave(int *frame, int *contador, int velocidade);
-void Anima_Propulsor(int *marcador_som, float *angulo, Texture2D textura_idle, Texture2D textura_propulsao, int *framerate, Vector2 pivo, float *pos_x, float *pos_y);
+void Desenha_Nave(int *marcador_som, float *angulo, Texture2D textura_idle, Texture2D textura_propulsao, int *framerate, Vector2 pivo, float *pos_x, float *pos_y);
 
-// SISTEMA DE COMBATE (Armas e Inimigos)
+// SISTEMA DE COMBATE (Tiros e asteroides)
 void Atira_Nave(Sound missile_sound, int *temporizador, Projetil tiros[], float pos_x_nave, float pos_y_nave, float angulo_nave);
 void Atualiza_Tiro(int *framerate, Projetil tiros[], Texture2D textura_projetil, Vector2 pivo_projetil);
 void Atualiza_Asteroides(Contextos_Jogo *ctx);

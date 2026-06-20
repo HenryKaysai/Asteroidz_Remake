@@ -415,8 +415,36 @@ void Atualiza_Seta(int *frame, int *contador, int velocidade){
 }
 
 //////////////////////////////////////////////////
+//Funções auxiliares de movimento (lógica)
+//////////////////////////////////////////////////
+
+// Função para fazer a nave sair de um lado para o outro
+void Aplica_Limites_Circulares(float *pos_x, float *pos_y, float tamanho){
+
+    //EIXO X
+    if((*pos_x) > LARGURA_TELA + tamanho){
+        (*pos_x) -= LARGURA_TELA;
+    }
+    else if((*pos_x) < -tamanho){
+        (*pos_x) += LARGURA_TELA;
+    }
+    
+    // EIXO Y
+    if((*pos_y) > ALTURA_TELA + tamanho){
+        (*pos_y) -= ALTURA_TELA;
+    }
+    else if((*pos_y) < -tamanho){
+        (*pos_y) += ALTURA_TELA;
+    }
+}
+
+
+
+
+//////////////////////////////////////////////////
 //Funções da nave
 //////////////////////////////////////////////////
+
 
 //Função para atualizar a animação da nave
 void Atualiza_Nave(int *frame, int *contador, int velocidade){
@@ -465,9 +493,9 @@ void Som_Motor(Music engine, int *textura_ativa, float *volume){
 
 
 // Função para animar o propulsor da nave e desenhar a nave
-void Anima_Propulsor(int *marcador_som, float *angulo, Texture2D textura_idle, Texture2D textura_propulsao, int *framerate, Vector2 pivo, float *pos_x, float *pos_y){
-    Rectangle nave_hitbox_source = {*framerate * 64, 0 ,64, 64};
-    Rectangle nave_hitbox_dest = {roundf(*pos_x), roundf(*pos_y), 64, 64};
+void Desenha_Nave(int *marcador_som, float *angulo, Texture2D textura_idle, Texture2D textura_propulsao, int *framerate, Vector2 pivo, float *pos_x, float *pos_y){
+    Rectangle nave_hitbox_source = {*framerate * TAMANHO_NAVE, 0 ,TAMANHO_NAVE, TAMANHO_NAVE};
+    Rectangle nave_hitbox_dest = {roundf(*pos_x), roundf(*pos_y), TAMANHO_NAVE, TAMANHO_NAVE};
 
     Texture2D textura_ativa;
 
@@ -482,39 +510,39 @@ void Anima_Propulsor(int *marcador_som, float *angulo, Texture2D textura_idle, T
     DrawTexturePro(textura_ativa, nave_hitbox_source, nave_hitbox_dest, pivo, roundf(*angulo), WHITE);
 
     // EIXO X
-    if ((*pos_x) > LARGURA_TELA - 64) {
-        Rectangle fantasma_x = {roundf((*pos_x) - LARGURA_TELA), roundf(*pos_y), 64, 64};
+    if ((*pos_x) > LARGURA_TELA - TAMANHO_NAVE) {
+        Rectangle fantasma_x = {roundf((*pos_x) - LARGURA_TELA), roundf(*pos_y), TAMANHO_NAVE, TAMANHO_NAVE};
         DrawTexturePro(textura_ativa, nave_hitbox_source, fantasma_x, pivo, roundf(*angulo), WHITE);
     }
-    if ((*pos_x) < 64) {
-        Rectangle fantasma_x = {roundf((*pos_x) + LARGURA_TELA), roundf(*pos_y), 64, 64};
+    if ((*pos_x) < TAMANHO_NAVE) {
+        Rectangle fantasma_x = {roundf((*pos_x) + LARGURA_TELA), roundf(*pos_y), TAMANHO_NAVE, TAMANHO_NAVE};
         DrawTexturePro(textura_ativa, nave_hitbox_source, fantasma_x, pivo, roundf(*angulo), WHITE);
     }
 
     // EIXO Y 
-    if ((*pos_y) > ALTURA_TELA - 64) { 
-        Rectangle fantasma_y = {roundf(*pos_x), roundf((*pos_y) - ALTURA_TELA), 64, 64};
+    if ((*pos_y) > ALTURA_TELA - TAMANHO_NAVE) { 
+        Rectangle fantasma_y = {roundf(*pos_x), roundf((*pos_y) - ALTURA_TELA), TAMANHO_NAVE, TAMANHO_NAVE};
         DrawTexturePro(textura_ativa, nave_hitbox_source, fantasma_y, pivo, roundf(*angulo), WHITE);
     }
-    if ((*pos_y) < 64) { 
-        Rectangle fantasma_y = {roundf(*pos_x), roundf((*pos_y) + ALTURA_TELA), 64, 64}; 
+    if ((*pos_y) < TAMANHO_NAVE) { 
+        Rectangle fantasma_y = {roundf(*pos_x), roundf((*pos_y) + ALTURA_TELA), TAMANHO_NAVE, TAMANHO_NAVE}; 
         DrawTexturePro(textura_ativa, nave_hitbox_source, fantasma_y, pivo, roundf(*angulo), WHITE);
     }
 
     // QUINAS DA TELA
-    if (((*pos_x) > LARGURA_TELA - 64 || (*pos_x) < 64) && 
-        ((*pos_y) > ALTURA_TELA - 64 || (*pos_y) < 64)) {
+    if (((*pos_x) > LARGURA_TELA - TAMANHO_NAVE || (*pos_x) < TAMANHO_NAVE) && 
+        ((*pos_y) > ALTURA_TELA - TAMANHO_NAVE || (*pos_y) < TAMANHO_NAVE)) {
         
         float quina_x = *pos_x;
         float quina_y = *pos_y;
 
-        if ((*pos_x) > LARGURA_TELA - 64) quina_x -= LARGURA_TELA;
-        else if ((*pos_x) < 64) quina_x += LARGURA_TELA;
+        if ((*pos_x) > LARGURA_TELA - TAMANHO_NAVE) quina_x -= LARGURA_TELA;
+        else if ((*pos_x) < TAMANHO_NAVE) quina_x += LARGURA_TELA;
 
-        if ((*pos_y) > ALTURA_TELA - 64) quina_y -= ALTURA_TELA;
-        else if ((*pos_y) < 64) quina_y += ALTURA_TELA;
+        if ((*pos_y) > ALTURA_TELA - TAMANHO_NAVE) quina_y -= ALTURA_TELA;
+        else if ((*pos_y) < TAMANHO_NAVE) quina_y += ALTURA_TELA;
 
-        Rectangle fantasma_quina = {roundf(quina_x), roundf(quina_y), 64, 64};
+        Rectangle fantasma_quina = {roundf(quina_x), roundf(quina_y), TAMANHO_NAVE, TAMANHO_NAVE};
         DrawTexturePro(textura_ativa, nave_hitbox_source, fantasma_quina, pivo, roundf(*angulo), WHITE);
     }
 }
@@ -552,26 +580,6 @@ void Acelera_Nave(float *vel_x, float *vel_y, float *pos_x, float *pos_y, float 
     (*pos_y) += (*vel_y);
 }
 
-// Função para fazer a nave sair de um lado para o outro
-void Limites_Nave(float *pos_x, float *pos_y){
-    float margem = 64.0f;
-    
-    //EIXO X
-    if((*pos_x) > LARGURA_TELA + margem){
-        (*pos_x) -= LARGURA_TELA;
-    }
-    else if((*pos_x) < -margem){
-        (*pos_x) += LARGURA_TELA;
-    }
-    
-    // EIXO Y
-    if((*pos_y) > ALTURA_TELA + margem){
-        (*pos_y) -= ALTURA_TELA;
-    }
-    else if((*pos_y) < -margem){
-        (*pos_y) += ALTURA_TELA;
-    }
-}
 
 // Função para atirar com a nave
 void Atira_Nave(Sound missile_sound, int *temporizador, Projetil tiros[], float pos_x_nave, float pos_y_nave, float angulo_nave){    
@@ -662,6 +670,36 @@ void Desenha_Barra(int *framerate, Vector2 pivo_barra, Texture2D textura_barra){
     Rectangle barra_hitbox_dest = {LARGURA_TELA - 125, ALTURA_TELA - 35 , 150, 25};
     DrawTexturePro(textura_barra, barra_hitbox_source, barra_hitbox_dest, pivo_barra, 0, WHITE);
 }
+
+
+//////////////////////////////////////////////////
+//Funções dos asteroides
+//////////////////////////////////////////////////
+
+void Atualiza_Asteroides(Contextos_Jogo *ctx) {
+    int i;
+    Asteroide ast;
+    
+    for (i=0; i<MAX_TIROS; i++) {
+        ast = ctx->asteroides[i];
+        
+        // se não estiver ativo, ignorar
+        if ( ! ast.ativo) continue;
+        
+        // movimento
+        ast.pos_x += ast.vel_x;
+        ast.pos_y += ast.vel_y;
+        // rotacao
+        ast.angulo += ast.vel_angular;
+
+        
+    
+    }
+}
+
+
+void Desenha_Asteroides(Contextos_Jogo *ctx);
+
 
 //////////////////////////////////////////////////
 //Funções de Parallax

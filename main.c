@@ -87,7 +87,7 @@ int main(void){
                 Gira_Nave(&jogo.player.angulo);
                 Som_Motor(som.engine, &som.marcador_som_engine, &som.volume_engine);
                 Acelera_Nave(&jogo.player.vel_x, &jogo.player.vel_y, &jogo.player.pos_x, &jogo.player.pos_y, &jogo.player.angulo);
-                Limites_Nave(&jogo.player.pos_x, &jogo.player.pos_y);
+                Aplica_Limites_Circulares(&jogo.player.pos_x, &jogo.player.pos_y, TAMANHO_NAVE);
                 Atualiza_Nave(&jogo.frame_atual, &jogo.contador_tempo, jogo.velocidade_animacao);
                 Atira_Nave(som.missile_sound, &jogo.contador, jogo.tiros, jogo.player.pos_x, jogo.player.pos_y, jogo.player.angulo);
                 Atualiza_Asteroides(&jogo);
@@ -145,7 +145,7 @@ int main(void){
                     Desenha_Cenario(jogo.Nebulosa, &parallax.nebulosa_pos_x, &parallax.nebulosa_pos_y);
                     Desenha_Cenario(jogo.Estrelas_Menores, &parallax.estrelas_menores_pos_x, &parallax.estrelas_menores_pos_y);
                     Desenha_Cenario(jogo.Estrelas_Maiores, &parallax.estrelas_maiores_pos_x, &parallax.estrelas_maiores_pos_y);
-                    Anima_Propulsor(&som.marcador_som_engine, &jogo.player.angulo, jogo.Nave, jogo.Nave_Propulsor, &jogo.frame_atual, jogo.pivo_nave, &jogo.player.pos_x, &jogo.player.pos_y);
+                    Desenha_Nave(&som.marcador_som_engine, &jogo.player.angulo, jogo.Nave, jogo.Nave_Propulsor, &jogo.frame_atual, jogo.pivo_nave, &jogo.player.pos_x, &jogo.player.pos_y);
                     Atualiza_Tiro(&jogo.frame_atual, jogo.tiros, jogo.Projetil, jogo.pivo_projetil);
                     Desenha_Barra(&jogo.frames_barra,jogo.pivo_barra, jogo.Barra_Carregamento);
                     Desenha_Asteroides(&jogo);
