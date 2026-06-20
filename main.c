@@ -1,7 +1,25 @@
+/*
+Arquivo principal do jogo. Carrega a biblioteca raylib e os 
+prototipos das funções e controla as transiçoes entre estados 
+e todos passos do loop. 
+*/
+
 #include "raylib.h"
 #include "prototypes.h"
 #include <math.h>
 
+/*
+Tarefas:
+Fazer o struct da fase com base no que ta no documento
+Fazer os níveis com base nos structs
+Fazer uma função pra desenhar e mover os asteroides
+Fazer a nave ter colisão com os asteroides e perder uma vida
+Fazer as 3 vidas do jogo
+Fazer os mísseis terem colisão com os asteroides e destruir eles
+Fazer o player poder salvar o jogo em um documento de txt com base no nível que ele ta e salvar em um dos slots
+Carregar o jogo pelos slots de save
+Fazer o menu de save igual o de load
+ */
 
 int main(void){
     //Incialização
@@ -22,16 +40,17 @@ int main(void){
     Carregar_Som(&som);
     
     //Variáveis de inicialização
-    jogo.angulo_nave = 0.0f;
+    jogo.player.pos_x = LARGURA_TELA / 2;
+    jogo.player.pos_y = ALTURA_TELA / 2;
+    jogo.player.vel_x = 0.0f;
+    jogo.player.vel_y = 0.0f;
+    jogo.player.angulo = 0.0f;
+    jogo.player.vidas = 3;
     jogo.frame_atual = 0;
     jogo.contador_tempo = 0;
     jogo.velocidade_animacao = 10;
     jogo.opcao_selecionada = 0;
     jogo.velocidade_animacao_seta = 5;
-    jogo.pos_x_nave = LARGURA_TELA / 2;
-    jogo.pos_y_nave = ALTURA_TELA / 2;
-    jogo.vel_x_nave = 0.0f;
-    jogo.vel_y_nave = 0.0f;
     jogo.contador = 60;
     jogo.frames_barra = 5;
     jogo.temporizador_logo = 0;
@@ -61,16 +80,16 @@ int main(void){
             case JOGANDO:
                 HideCursor();
                 DisableCursor();
-                Move_Cenario(&parallax.nebulosa_pos_y, &parallax.nebulosa_pos_x, &jogo.vel_x_nave, &jogo.vel_y_nave, 0.2f);
-                Move_Cenario(&parallax.estrelas_menores_pos_y, &parallax.estrelas_menores_pos_x, &jogo.vel_x_nave, &jogo.vel_y_nave, 0.4f);
-                Move_Cenario(&parallax.estrelas_maiores_pos_y, &parallax.estrelas_maiores_pos_x, &jogo.vel_x_nave, &jogo.vel_y_nave, 0.6f);
+                Move_Cenario(&parallax.nebulosa_pos_y, &parallax.nebulosa_pos_x, &jogo.player.vel_x, &jogo.player.vel_y, 0.2f);
+                Move_Cenario(&parallax.estrelas_menores_pos_y, &parallax.estrelas_menores_pos_x, &jogo.player.vel_x, &jogo.player.vel_y, 0.4f);
+                Move_Cenario(&parallax.estrelas_maiores_pos_y, &parallax.estrelas_maiores_pos_x, &jogo.player.vel_x, &jogo.player.vel_y, 0.6f);
                 Atualiza_Barra(jogo.contador, &jogo.frames_barra);
-                Gira_Nave(&jogo.angulo_nave);
+                Gira_Nave(&jogo.player.angulo);
                 Som_Motor(som.engine, &som.marcador_som_engine, &som.volume_engine);
-                Acelera_Nave(&jogo.vel_x_nave, &jogo.vel_y_nave, &jogo.pos_x_nave, &jogo.pos_y_nave, &jogo.angulo_nave);
-                Limites_Nave(&jogo.pos_x_nave, &jogo.pos_y_nave);
+                Acelera_Nave(&jogo.player.vel_x, &jogo.player.vel_y, &jogo.player.pos_x, &jogo.player.pos_y, &jogo.player.angulo);
+                Limites_Nave(&jogo.player.pos_x, &jogo.player.pos_y);
                 Atualiza_Nave(&jogo.frame_atual, &jogo.contador_tempo, jogo.velocidade_animacao);
-                Atira_Nave(som.missile_sound, &jogo.contador, jogo.tiros, jogo.pos_x_nave, jogo.pos_y_nave, jogo.angulo_nave);
+                Atira_Nave(som.missile_sound, &jogo.contador, jogo.tiros, jogo.player.pos_x, jogo.player.pos_y, jogo.player.angulo);
                 
                 //Entra no meu de pausa se apertar ESC
                 if(IsKeyPressed(KEY_ESCAPE)){
@@ -82,15 +101,13 @@ int main(void){
 
             case SAVE:
                 Sai_Menu(&estado_atual, PAUSE);
+                Escolhe_Slot(&jogo.opcao_selecionada, &estado_atual, PAUSE);
                 break;
 
             case LOAD_IN_GAME:
                 Sai_Menu(&estado_atual, PAUSE);
-                Escolhe_Load_In_Game(&jogo.opcao_selecionada, &estado_atual);
-
+                Escolhe_Slot(&jogo.opcao_selecionada, &estado_atual, PAUSE);
                 break;
-            
-
 
             case PAUSE:
                 Escolhe_Menu_Pausa(&jogo.opcao_selecionada, &estado_atual);
@@ -100,8 +117,7 @@ int main(void){
 
             case LOAD_OUT_GAME:
                 Sai_Menu(&estado_atual, MENU);
-                Escolhe_Load_Out_Game(&jogo.opcao_selecionada, &estado_atual);
-
+                Escolhe_Slot(&jogo.opcao_selecionada, &estado_atual, MENU);
                 break;
 
             case BEST_SCORES:
@@ -128,7 +144,7 @@ int main(void){
                     Desenha_Cenario(jogo.Nebulosa, &parallax.nebulosa_pos_x, &parallax.nebulosa_pos_y);
                     Desenha_Cenario(jogo.Estrelas_Menores, &parallax.estrelas_menores_pos_x, &parallax.estrelas_menores_pos_y);
                     Desenha_Cenario(jogo.Estrelas_Maiores, &parallax.estrelas_maiores_pos_x, &parallax.estrelas_maiores_pos_y);
-                    Anima_Propulsor(&som.marcador_som_engine, &jogo.angulo_nave, jogo.Nave, jogo.Nave_Propulsor, &jogo.frame_atual, jogo.pivo_nave, &jogo.pos_x_nave, &jogo.pos_y_nave);
+                    Anima_Propulsor(&som.marcador_som_engine, &jogo.player.angulo, jogo.Nave, jogo.Nave_Propulsor, &jogo.frame_atual, jogo.pivo_nave, &jogo.player.pos_x, &jogo.player.pos_y);
                     Atualiza_Tiro(&jogo.frame_atual, jogo.tiros, jogo.Projetil, jogo.pivo_projetil);
                     Desenha_Barra(&jogo.frames_barra,jogo.pivo_barra, jogo.Barra_Carregamento);
                     
@@ -136,10 +152,11 @@ int main(void){
                     break;
 
                 case SAVE:
+                    Desenha_Menu_Slots(&jogo.opcao_selecionada, "SAVE GAME");
                     break;
 
                 case LOAD_IN_GAME:
-                    Desenha_Load(&jogo.opcao_selecionada);
+                    Desenha_Menu_Slots(&jogo.opcao_selecionada, "LOAD GAME");
                     break;
 
                 case PAUSE: //Menu de pausa, ainda não sei se tudo vai ser perdido se pausar o jogo
@@ -148,7 +165,7 @@ int main(void){
                  break;
 
                 case LOAD_OUT_GAME:
-                    Desenha_Load(&jogo.opcao_selecionada);
+                    Desenha_Menu_Slots(&jogo.opcao_selecionada, "LOAD GAME");
                     break;
 
                 case BEST_SCORES:

@@ -1,6 +1,7 @@
 #include "raylib.h"
 #include "prototypes.h"
 #include <math.h>
+#include <stdio.h>
 
 //////////////////////////////////////////////////
 //Funções dos estados do jogo
@@ -145,295 +146,115 @@ void Desconta_Tamanho(const char* texto, float pos_x, float pos_y, int tamanho_f
 }
 
 //Função para desenhar o menu de pausa
-void Desenha_Load(int *opcao_selecionada){
-    Color cor_load_1 = ((*opcao_selecionada) == 0) ? PINK : BLACK;
-    Color cor_load_2 = ((*opcao_selecionada) == 1) ? PINK : BLACK;
-    Color cor_load_3 = ((*opcao_selecionada) == 2) ? PINK : BLACK;
-    Color cor_load_4 = ((*opcao_selecionada) == 3) ? PINK : BLACK;
-    Color cor_load_5 = ((*opcao_selecionada) == 4) ? PINK : BLACK;
-    Color cor_load_6 = ((*opcao_selecionada) == 5) ? PINK : BLACK;
-    Color cor_load_7 = ((*opcao_selecionada) == 6) ? PINK : BLACK;
-    Color cor_load_8 = ((*opcao_selecionada) == 7) ? PINK : BLACK;
-    Color cor_back = ((*opcao_selecionada) == 8) ? PINK : WHITE;
-    
+void Desenha_Menu_Slots(int *opcao_selecionada, const char* titulo_menu){
+    // Funcao generica para desenhar os slots nos menus de Save e de Load
+
+    Desenha_Texto_Centralizado(titulo_menu, 60, 60, WHITE);
+
     int fonte_slot = 24;
 
-    // LOAD 1 
-    DrawRectangle(20, 140, 260, 220, cor_load_1);
-    DrawRectangle(30, 150, 240, 200, WHITE);
-    Desconta_Tamanho("SLOT 1", 148, 240, fonte_slot, PINK);
+    // Gera 8 retângulos denominados LOAD 1, LOAD 2... LOAD 8 
+    // representando diferentes slots que podem ser selecionados
+    for (int i = 0; i < 8; i++) {
+        // Se a opção selecionada for igual a i, pinta de rosa, senao, de preto
+        Color cor_borda = ((*opcao_selecionada) == i) ? PINK : BLACK;
+        
+        // divide por 4 para saber a linha (0 ou 1)
+        int linha = i / 4; 
+        // pega o resto da divisão por 4 para saber a coluna 
+        int coluna = i % 4; 
 
-    // LOAD 2 
-    DrawRectangle(320, 140, 260, 220, cor_load_2);
-    DrawRectangle(330, 150, 240, 200, WHITE);
-    Desconta_Tamanho("SLOT 2", 448, 240, fonte_slot, PINK);
+        // calcula as coordenadas baseado na linha e coluna
+        int pos_x = 20 + (coluna * 300);
+        int pos_y = 140 + (linha * 250);
 
-    // LOAD 3 
-    DrawRectangle(620, 140, 260, 220, cor_load_3);
-    DrawRectangle(630, 150, 240, 200, WHITE);
-    Desconta_Tamanho("SLOT 3", 748, 240, fonte_slot, PINK);
+        DrawRectangle(pos_x, pos_y, 260, 220, cor_borda);
+        DrawRectangle(pos_x + 10, pos_y + 10, 240, 200, WHITE);
 
-    // LOAD 4 
-    DrawRectangle(920, 140, 260, 220, cor_load_4);
-    DrawRectangle(930, 150, 240, 200, WHITE);
-    Desconta_Tamanho("SLOT 4", 1048, 240, fonte_slot, PINK);
+        // Cria o texto "SLOT X"
+        char texto_slot[10];
+        sprintf(texto_slot, "SLOT %d", i + 1); 
+        Desconta_Tamanho(texto_slot, pos_x + 130, pos_y + 90, fonte_slot, PINK);
+    }
 
-    // LOAD 5 
-    DrawRectangle(20, 390, 260, 220, cor_load_5);
-    DrawRectangle(30, 400, 240, 200, WHITE);
-    Desconta_Tamanho("SLOT 5", 148, 490, fonte_slot, PINK);
-
-    // LOAD 6 
-    DrawRectangle(320, 390, 260, 220, cor_load_6);
-    DrawRectangle(330, 400, 240, 200, WHITE);
-    Desconta_Tamanho("SLOT 6", 448, 490, fonte_slot, PINK);
-
-    // LOAD 7 
-    DrawRectangle(620, 390, 260, 220, cor_load_7);
-    DrawRectangle(630, 400, 240, 200, WHITE);
-    Desconta_Tamanho("SLOT 7", 748, 490, fonte_slot, PINK);
-
-    // LOAD 8 
-    DrawRectangle(920, 390, 260, 220, cor_load_8);
-    DrawRectangle(930, 400, 240, 200, WHITE);
-    Desconta_Tamanho("SLOT 8", 1048, 490, fonte_slot, PINK);
-
-    // BOTÃO VOLTAR
+    // BOTA VOLTAR (opcao 8)
+    Color cor_back = ((*opcao_selecionada) == 8) ? PINK : WHITE;
     Desenha_Texto_Centralizado("BACK", 700, 40, cor_back);
 
 }
+
+
 
 //////////////////////////////////////////////////
 //Funções de funcionalidade de opções de menu
 //////////////////////////////////////////////////
 
-// Função para seleção de opções do Menu de Load a partir do menu principal
-void Escolhe_Load_Out_Game(int *opcao_selecionada, GameState *estado){
-    // hit box para passar o mouse ou selecionar
-    Rectangle slot_1_hit_box = {20, 140, 260, 220};
-    Rectangle slot_2_hit_box = {320, 140, 260, 220};
-    Rectangle slot_3_hit_box = {620, 140, 260, 220};
-    Rectangle slot_4_hit_box = {920, 140, 260, 220};
-    
-    Rectangle slot_5_hit_box = {20, 390, 260, 220};
-    Rectangle slot_6_hit_box = {320, 390, 260, 220};
-    Rectangle slot_7_hit_box = {620, 390, 260, 220};
-    Rectangle slot_8_hit_box = {920, 390, 260, 220};
-    
-    Rectangle back_hit_box = {0, 700, LARGURA_TELA, 40};
+void Escolhe_Slot(int *opcao_selecionada,   
+                    GameState *estado,      // Estado atual - pode ser load ou save
+                    GameState estado_voltar // Estado desejado ao voltar 
+                    ){ 
+    // Funcao generica que serve tanto para o estado de Load_In_Game, Load_Out_Game e Save
 
-    
-    // Teclado
+    // Pra facilitar o uso das teclas up e down pra navegar entre slots
+    int mapa_cima[9]  =    {8, 8, 8, 8, 0, 1, 2, 3, 4};
+    int mapa_baixo[9] =    {4, 5, 6, 7, 8, 8, 8, 8, 0};
+
+    int primeiro_slot;
+    // Muda a variavel primeiro_slot para servir tanto para load quanto para save
+    if (*estado == SAVE) primeiro_slot = SAVE_SLOT_1;
+    else if ((*estado==LOAD_IN_GAME) || (*estado==LOAD_OUT_GAME)) {
+        primeiro_slot = LOAD_SLOT_1;
+    }            
+    // Atualiza opcao_selecionada baseada no teclado
     if(IsKeyPressed(KEY_RIGHT) || IsKeyPressed(KEY_D)){
         (*opcao_selecionada)++;
-        if(*opcao_selecionada > 8){
-            *opcao_selecionada = 0;
-        }
+        if(*opcao_selecionada > 8) *opcao_selecionada = 0;
     }
-    if(IsKeyPressed(KEY_LEFT) || IsKeyPressed(KEY_A)){
+    else if(IsKeyPressed(KEY_LEFT) || IsKeyPressed(KEY_A)){
         (*opcao_selecionada)--;
-        if(*opcao_selecionada < 0){
-            *opcao_selecionada = 8;
-        }
+        if(*opcao_selecionada < 0) *opcao_selecionada = 8;
     }
-
+    else if(IsKeyPressed(KEY_UP) || IsKeyPressed(KEY_W)){
+        *opcao_selecionada = mapa_cima[*opcao_selecionada];
+    }
+    else if(IsKeyPressed(KEY_DOWN) || IsKeyPressed(KEY_S)){
+        *opcao_selecionada = mapa_baixo[*opcao_selecionada];
+    }
+    
     Vector2 mouse_virtual = GetMousePosition();
 
-    // Mouse
-    if(CheckCollisionPointRec(mouse_virtual, slot_1_hit_box)){
-        *opcao_selecionada = 0;
+    // Atualiza opcao_selecionada se o mouse tiver dentro dos hitbox dos slots
+    for (int i = 0; i < 8; i++) {
+        int linha = i / 4;
+        int coluna = i % 4;
+        Rectangle slot_hit_box = {20 + (coluna * 300), 140 + (linha * 250), 260, 220};
+        
+        if(CheckCollisionPointRec(mouse_virtual, slot_hit_box)) {
+            *opcao_selecionada = i;
+        }
     }
-    if(CheckCollisionPointRec(mouse_virtual, slot_2_hit_box)){
-        *opcao_selecionada = 1;
-    }
-    if(CheckCollisionPointRec(mouse_virtual, slot_3_hit_box)){
-        *opcao_selecionada = 2;
-    }
-    if(CheckCollisionPointRec(mouse_virtual, slot_4_hit_box)){
-        *opcao_selecionada = 3;
-    }
-    if(CheckCollisionPointRec(mouse_virtual, slot_5_hit_box)){
-        *opcao_selecionada = 4;
-    }
-    if(CheckCollisionPointRec(mouse_virtual, slot_6_hit_box)){
-        *opcao_selecionada = 5;
-    }
-    if(CheckCollisionPointRec(mouse_virtual, slot_7_hit_box)){
-        *opcao_selecionada = 6;
-    }
-    if(CheckCollisionPointRec(mouse_virtual, slot_8_hit_box)){
-        *opcao_selecionada = 7;
-    }
+
+    // Atualiza opcao_selecionada se mouse estiver no hitbox do voltar
+    Rectangle back_hit_box = {0, 700, LARGURA_TELA, 40};
     if(CheckCollisionPointRec(mouse_virtual, back_hit_box)){
         *opcao_selecionada = 8;
     }
-
-    // Seleção
-    switch(*opcao_selecionada)
-    {
-        case 0:
-            if(IsKeyPressed(KEY_ENTER) || IsMouseButtonPressed(MOUSE_BUTTON_LEFT)){
-                *estado = LOAD_1;
-            }
-            break;
-        case 1:
-            if(IsKeyPressed(KEY_ENTER) || IsMouseButtonPressed(MOUSE_BUTTON_LEFT)){
-                *estado = LOAD_2;
-            }
-            break;
-
-        case 2:
-            if(IsKeyPressed(KEY_ENTER) || IsMouseButtonPressed(MOUSE_BUTTON_LEFT)){
-                *estado = LOAD_3;
-            }      
-            break;
-
-        case 3:
-            if(IsKeyPressed(KEY_ENTER) || IsMouseButtonPressed(MOUSE_BUTTON_LEFT)){
-                *estado = LOAD_4;
-            }
-            break;
-        case 4:
-            if(IsKeyPressed(KEY_ENTER) || IsMouseButtonPressed(MOUSE_BUTTON_LEFT)){
-                *estado = LOAD_5;
-            }
-            break;
-        case 5:
-            if(IsKeyPressed(KEY_ENTER) || IsMouseButtonPressed(MOUSE_BUTTON_LEFT)){
-                *estado = LOAD_6;
-            }
-            break;
-        case 6:
-            if(IsKeyPressed(KEY_ENTER) || IsMouseButtonPressed(MOUSE_BUTTON_LEFT)){
-                *estado = LOAD_7;
-            }
-            break;
-        case 7:
-            if(IsKeyPressed(KEY_ENTER) || IsMouseButtonPressed(MOUSE_BUTTON_LEFT)){
-                *estado = LOAD_8;
-            }
-            break; 
-        case 8:
-            if(IsKeyPressed(KEY_ENTER) || IsMouseButtonPressed(MOUSE_BUTTON_LEFT)){
-                *estado = MENU;
-            }
-            break;        
-    }
-}
-
-// Função para seleção de opções do Menu de Load a partir do menu principal
-void Escolhe_Load_In_Game(int *opcao_selecionada, GameState *estado){
-    // hit box para passar o mouse ou selecionar
-    Rectangle slot_1_hit_box = {20, 140, 260, 220};
-    Rectangle slot_2_hit_box = {320, 140, 260, 220};
-    Rectangle slot_3_hit_box = {620, 140, 260, 220};
-    Rectangle slot_4_hit_box = {920, 140, 260, 220};
     
-    Rectangle slot_5_hit_box = {20, 390, 260, 220};
-    Rectangle slot_6_hit_box = {320, 390, 260, 220};
-    Rectangle slot_7_hit_box = {620, 390, 260, 220};
-    Rectangle slot_8_hit_box = {920, 390, 260, 220};
-    
-    Rectangle back_hit_box = {0, 700, LARGURA_TELA, 40};
+    // Efetua a selecao atualizando o estado com base na opcao_selecionada
+    if(IsKeyPressed(KEY_ENTER) || IsMouseButtonPressed(MOUSE_BUTTON_LEFT)){
+        if (*opcao_selecionada >= 0 && *opcao_selecionada <= 7) {
 
-    
-    // Teclado
-    if(IsKeyPressed(KEY_RIGHT) || IsKeyPressed(KEY_D)){
-        (*opcao_selecionada)++;
-        if(*opcao_selecionada > 8){
-            *opcao_selecionada = 0;
+            // primeiro_slot -> LOAD_SLOT_1, LOAD_SLOT_2, ... LOAD_SLOT_8 sao enums,
+            // logo podem ser tratados como int
+            *estado = primeiro_slot + *opcao_selecionada; 
+        } 
+        else if (*opcao_selecionada == 8) {
+            *estado = estado_voltar; 
         }
     }
-    if(IsKeyPressed(KEY_LEFT) || IsKeyPressed(KEY_A)){
-        (*opcao_selecionada)--;
-        if(*opcao_selecionada < 0){
-            *opcao_selecionada = 8;
-        }
-    }
-
-    Vector2 mouse_virtual = GetMousePosition();
-
-    // Mouse
-    if(CheckCollisionPointRec(mouse_virtual, slot_1_hit_box)){
-        *opcao_selecionada = 0;
-    }
-    if(CheckCollisionPointRec(mouse_virtual, slot_2_hit_box)){
-        *opcao_selecionada = 1;
-    }
-    if(CheckCollisionPointRec(mouse_virtual, slot_3_hit_box)){
-        *opcao_selecionada = 2;
-    }
-    if(CheckCollisionPointRec(mouse_virtual, slot_4_hit_box)){
-        *opcao_selecionada = 3;
-    }
-    if(CheckCollisionPointRec(mouse_virtual, slot_5_hit_box)){
-        *opcao_selecionada = 4;
-    }
-    if(CheckCollisionPointRec(mouse_virtual, slot_6_hit_box)){
-        *opcao_selecionada = 5;
-    }
-    if(CheckCollisionPointRec(mouse_virtual, slot_7_hit_box)){
-        *opcao_selecionada = 6;
-    }
-    if(CheckCollisionPointRec(mouse_virtual, slot_8_hit_box)){
-        *opcao_selecionada = 7;
-    }
-    if(CheckCollisionPointRec(mouse_virtual, back_hit_box)){
-        *opcao_selecionada = 8;
-    }
-
-    // Seleção
-    switch(*opcao_selecionada)
-    {
-        case 0:
-            if(IsKeyPressed(KEY_ENTER) || IsMouseButtonPressed(MOUSE_BUTTON_LEFT)){
-                *estado = LOAD_1;
-            }
-            break;
-        case 1:
-            if(IsKeyPressed(KEY_ENTER) || IsMouseButtonPressed(MOUSE_BUTTON_LEFT)){
-                *estado = LOAD_2;
-            }
-            break;
-
-        case 2:
-            if(IsKeyPressed(KEY_ENTER) || IsMouseButtonPressed(MOUSE_BUTTON_LEFT)){
-                *estado = LOAD_3;
-            }      
-            break;
-
-        case 3:
-            if(IsKeyPressed(KEY_ENTER) || IsMouseButtonPressed(MOUSE_BUTTON_LEFT)){
-                *estado = LOAD_4;
-            }
-            break;
-        case 4:
-            if(IsKeyPressed(KEY_ENTER) || IsMouseButtonPressed(MOUSE_BUTTON_LEFT)){
-                *estado = LOAD_5;
-            }
-            break;
-        case 5:
-            if(IsKeyPressed(KEY_ENTER) || IsMouseButtonPressed(MOUSE_BUTTON_LEFT)){
-                *estado = LOAD_6;
-            }
-            break;
-        case 6:
-            if(IsKeyPressed(KEY_ENTER) || IsMouseButtonPressed(MOUSE_BUTTON_LEFT)){
-                *estado = LOAD_7;
-            }
-            break;
-        case 7:
-            if(IsKeyPressed(KEY_ENTER) || IsMouseButtonPressed(MOUSE_BUTTON_LEFT)){
-                *estado = LOAD_8;
-            }
-            break; 
-        case 8:
-            if(IsKeyPressed(KEY_ENTER) || IsMouseButtonPressed(MOUSE_BUTTON_LEFT)){
-                *estado = PAUSE;
-            }
-            break;        
-    }
 }
+                    
+
 
 // Função para seleção de opções do Menu Principal
 void Escolhe_Menu(Music *musica, int *opcao_selecionada, GameState *estado){
@@ -710,11 +531,11 @@ void Gira_Nave(float *angulo){
 
 // Função para acelerar os propulsores da nave
 void Acelera_Nave(float *vel_x, float *vel_y, float *pos_x, float *pos_y, float *angulo){
-    float velocidade = 0.1f; 
-    float angulo_ajustado = (*angulo) - 90.0f;//o sprite começa apontado para cima
+    float aceleracao = 0.1f; 
+    float angulo_ajustado = (*angulo) - 90.0f; //pro sprite começar apontado para cima
     float angulo_radianos = angulo_ajustado * (PI / 180.0f);//math.h opera em radianos
-    float move_x = cosf(angulo_radianos) * velocidade;
-    float move_y = sinf(angulo_radianos) * velocidade;
+    float move_x = cosf(angulo_radianos) * aceleracao;
+    float move_y = sinf(angulo_radianos) * aceleracao;
     // o angulo do jogo acumula infinitamente então o cos e sen geram valores entre -1 e 1
 
     if(IsKeyDown(KEY_W) || IsKeyDown(KEY_UP)){//acelera a posição do sprite na direção do bico da nave

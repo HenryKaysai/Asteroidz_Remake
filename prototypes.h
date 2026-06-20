@@ -9,7 +9,6 @@
 #define MAX_TIROS 3
 
 
-
 //Definição dos estados do jogo
 typedef enum {
     LOGO,
@@ -17,16 +16,24 @@ typedef enum {
     JOGANDO,
     PAUSE,
     SAVE,
-    LOAD_OUT_GAME,
     LOAD_IN_GAME,
-    LOAD_1,
-    LOAD_2,
-    LOAD_3,
-    LOAD_4,
-    LOAD_5,
-    LOAD_6,
-    LOAD_7,
-    LOAD_8,
+    LOAD_OUT_GAME,
+    LOAD_SLOT_1,
+    LOAD_SLOT_2,
+    LOAD_SLOT_3,
+    LOAD_SLOT_4,
+    LOAD_SLOT_5,
+    LOAD_SLOT_6,
+    LOAD_SLOT_7,
+    LOAD_SLOT_8,
+    SAVE_SLOT_1,
+    SAVE_SLOT_2,
+    SAVE_SLOT_3,
+    SAVE_SLOT_4,
+    SAVE_SLOT_5,
+    SAVE_SLOT_6,
+    SAVE_SLOT_7,
+    SAVE_SLOT_8,
     BEST_SCORES,
     SAIR
 } GameState;
@@ -39,7 +46,26 @@ typedef struct{
     float vel_y;
     float angulo;
     bool ativo;
-}Projetil;
+} Projetil;
+
+// estrutura pra nave (jogador)
+typedef struct {
+    float pos_x;
+    float pos_y;
+    float vel_x;
+    float vel_y;
+    float angulo;
+    int vidas; 
+} Nave;
+
+// estrutura pra um asteroide
+typedef struct {
+    float pos_x;
+    float pos_y;
+    float vel_x;
+    float vel_y;
+    float angulo;
+} Asteroide;
 
 // Estrutura para os sons do jogo
 typedef struct{
@@ -50,7 +76,7 @@ typedef struct{
     float volume_engine;
     Music idle_engine;
     Music engine;
-}Som;
+} Som;
 
 //Carregamento das texturas e variáveis utilitárias
 typedef struct{
@@ -72,11 +98,6 @@ typedef struct{
     Vector2 pivo_barra;
 
     //variáveis
-    float angulo_nave;
-    float pos_x_nave;
-    float pos_y_nave;
-    float vel_x_nave;
-    float vel_y_nave;
     int temporizador_logo;
     int frame_atual;
     int frames_barra;
@@ -85,7 +106,9 @@ typedef struct{
     int velocidade_animacao_seta;
     int opcao_selecionada;
     int contador;
+    
     Projetil tiros[MAX_TIROS];
+    Nave player;
 
 }Contextos_Jogo;
 
@@ -125,10 +148,9 @@ void Acelera_Nave(float *vel_x, float *vel_y, float *pos_x, float *pos_y, float 
 void Anima_Propulsor(int *marcador_som, float *angulo, Texture2D textura_idle, Texture2D textura_propulsao, int *framerate, Vector2 pivo, float *pos_x, float *pos_y);
 void Sai_Menu(GameState *estado, GameState estado_desejado);
 void Limites_Nave(float *pos_x, float *pos_y);
-void Desenha_Load(int *opcao_selecionada);
+void Desenha_Menu_Slots(int *opcao_selecionada, const char* titulo_menu);
 void Desconta_Tamanho(const char* texto, float pos_x, float pos_y, int tamanho_fonte, Color cor);
-void Escolhe_Load_Out_Game(int *opcao_selecionada, GameState *estado);
-void Escolhe_Load_In_Game(int *opcao_selecionada, GameState *estado);
+void Escolhe_Slot(int *opcao_selecionada, GameState *estado, GameState estado_voltar);
 void Atira_Nave(Sound missile_sound, int *temporizador, Projetil tiros[], float pos_x_nave, float pos_y_nave, float angulo_nave);
 void Atualiza_Tiro(int *framerate, Projetil tiros[], Texture2D textura_projetil, Vector2 pivo_projetil);
 void Atualiza_Barra(int temporizador_tiro, int *framerate_barra);
