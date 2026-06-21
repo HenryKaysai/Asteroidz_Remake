@@ -11,6 +11,11 @@
 #define TAMANHO_NAVE 64.0f
 #define TAMANHO_ASTEROIDE 96.0f
 
+#define PIVO_NAVE (Vector2){ TAMANHO_NAVE / 2, TAMANHO_NAVE / 2 }
+#define PIVO_PROJETIL (Vector2){ 2.0f, 8.0f }
+#define PIVO_BARRA (Vector2){ 32.0f, 2.5f }
+#define PIVO_SETA (Vector2){ 15.0f, 15.0f }
+
 //Definição dos estados do jogo
 typedef enum {
     LOGO,
@@ -20,52 +25,30 @@ typedef enum {
     SAVE,
     LOAD_IN_GAME,
     LOAD_OUT_GAME,
-    LOAD_SLOT_1,
-    LOAD_SLOT_2,
-    LOAD_SLOT_3,
-    LOAD_SLOT_4,
-    LOAD_SLOT_5,
-    LOAD_SLOT_6,
-    LOAD_SLOT_7,
-    LOAD_SLOT_8,
-    SAVE_SLOT_1,
-    SAVE_SLOT_2,
-    SAVE_SLOT_3,
-    SAVE_SLOT_4,
-    SAVE_SLOT_5,
-    SAVE_SLOT_6,
-    SAVE_SLOT_7,
-    SAVE_SLOT_8,
     BEST_SCORES,
     SAIR
 } GameState;
 
 //Definição de um projetil da nave
 typedef struct{
-    float pos_x;
-    float pos_y;
-    float vel_x;
-    float vel_y;
+    Vector2 pos;
+    Vector2 vel;
     float angulo;
     bool ativo;
 } Projetil;
 
 // estrutura pra nave (jogador)
 typedef struct {
-    float pos_x;
-    float pos_y;
-    float vel_x;
-    float vel_y;
+    Vector2 pos;
+    Vector2 vel;
     float angulo;
     int vidas; 
 } Nave;
 
 // estrutura pra um asteroide
 typedef struct {
-    float pos_x; 
-    float pos_y; 
-    float vel_x; 
-    float vel_y; 
+    Vector2 pos;
+    Vector2 vel;
     float angulo; 
     float vel_angular;
     bool ativo;
@@ -97,10 +80,7 @@ typedef struct{
     Texture2D Estrelas_Maiores;
     Texture2D Nebulosa;
     Texture2D Estrelas_Menores;
-    Vector2 pivo_projetil;
-    Vector2 pivo_nave;
-    Vector2 pivo_seta;
-    Vector2 pivo_barra;
+    // (pivôs agora sao constantes definidas com #define)
 
     //variáveis
     int temporizador_logo;
@@ -111,25 +91,23 @@ typedef struct{
     int velocidade_animacao_seta;
     int opcao_selecionada;
     int contador;
+    int fase_atual;
     
     Projetil tiros[MAX_TIROS];
     Nave player;
-    Asteroide asteroides[MAX_ASTEROIDES]
+    Asteroide asteroides[MAX_ASTEROIDES];
 
 } Contextos_Jogo;
 
 typedef struct
 {
-    float nebulosa_pos_y;
-    float nebulosa_pos_x;
+    Vector2 nebulosa_pos;
     float nebulosa_vel;
-    float estrelas_menores_pos_y;
-    float estrelas_menores_pos_x;
+    Vector2 estrelas_menores_pos;
     float estrelas_menores_vel;
-    float estrelas_maiores_pos_y;
-    float estrelas_maiores_pos_x;
+    Vector2 estrelas_maiores_pos;
     float estrelas_maiores_vel;
-}Parallax;
+} Parallax;
 
 
 ////////////////////////////
@@ -145,45 +123,59 @@ void Descarrega_Som(Som *ctx);
 // CONTROLE DE ESTADOS DO JOGO
 void Atualizar_Logo(GameState *estado, int *temporizador);
 void Despausar_Jogo(GameState *estado);
-void Sai_Menu(GameState *estado, GameState estado_desejado);
+bool Sai_Menu(GameState *estado, GameState estado_desejado);
 
 // LÓGICA DE MENUS E NAVEGAÇÃO
-void Escolhe_Menu(Music *musica, int *opcao_selecionada, GameState *estado);
-void Escolhe_Menu_Pausa(int *opcao_selecionada, GameState *estado);
-void Escolhe_Slot(int *opcao_selecionada, GameState *estado, GameState estado_voltar);
+int Navega_Menu(int *selecionada, int max_opcoes, float inicio_y, float altura_linha);
+void Escolhe_Slot(Contextos_Jogo *ctx, GameState *estado, GameState estado_voltar);
 void Atualiza_Seta(int *frame, int *contador, int velocidade);
 
 // RENDERIZAÇÃO DE INTERFACE (UI) E TEXTOS
-void Desenha_Menu_Principal(int *opcao_selecionada);
-void Desenha_Menu_Pausa(int *opcao_selecionada);
+void Desenha_Menu(const char* titulo, const char* opcoes[], int total_opcoes, int selecionada);
 void Desenha_Menu_Slots(int *opcao_selecionada, const char* titulo_menu);
-void Desenha_Seta_Menu_Principal(int *framerate, int *opcao_selecionada, Texture2D textura, Vector2 pivo);
-void Desenha_Seta_Menu_Pausa(int *framerate, int *opcao_selecionada, Texture2D textura, Vector2 pivo);
+void Desenha_Seta_Menu(int *framerate, int *opcao_selecionada, Texture2D textura, Vector2 pivo, const char* textos[], int total_opcoes);
 void Desenha_Texto_Centralizado(const char* texto, int pos_y, int tamanho_fonte, Color cor);
-void Desconta_Tamanho(const char* texto, float pos_x, float pos_y, int tamanho_fonte, Color cor);
+void Desconta_Tamanho(const char* texto, Vector2 pos, int tamanho_fonte, Color cor);
 void Atualiza_Barra(int temporizador_tiro, int *framerate_barra);
-void Desenha_Barra(int *framerate, Vector2 pivo_barra, Texture2D textura_barra);
+void Desenha_Interface(Contextos_Jogo *ctx);
 
 // LÓGICA DE MOVIMENTO
-Aplica_Limites_Circulares(float *pos_x, float *pos_y, float tamanho);
+void Aplica_Limites_Circulares(Vector2 *pos, float tamanho);
+
+// FUNCOES AUXILIARES DE DESENHO
+void Desenha_Fantasmas(Texture2D textura, Rectangle source, Vector2 pos, float tamanho, Vector2 pivo, float angulo);
 
 // MECÂNICAS DA NAVE (Player)
 void Gira_Nave(float *angulo);
-void Acelera_Nave(float *vel_x, float *vel_y, float *pos_x, float *pos_y, float *angulo);
-void Atualiza_Nave(int *frame, int *contador, int velocidade);
-void Desenha_Nave(int *marcador_som, float *angulo, Texture2D textura_idle, Texture2D textura_propulsao, int *framerate, Vector2 pivo, float *pos_x, float *pos_y);
+void Acelera_Nave(Vector2 *vel, Vector2 *pos, float *angulo);
+void Anima_Nave(int *frame, int *contador, int velocidade);
+void Desenha_Nave(int *marcador_som, float *angulo, Texture2D textura_idle, Texture2D textura_propulsao, int *framerate, Vector2 pivo, Vector2 pos);
+void Atualiza_Nave(Contextos_Jogo* jogo, Som* som);
+void Atira_Nave(Sound missile_sound, int *temporizador, Projetil tiros[], Vector2 pos_nave, float angulo_nave);
 
 // SISTEMA DE COMBATE (Tiros e asteroides)
-void Atira_Nave(Sound missile_sound, int *temporizador, Projetil tiros[], float pos_x_nave, float pos_y_nave, float angulo_nave);
 void Atualiza_Tiro(int *framerate, Projetil tiros[], Texture2D textura_projetil, Vector2 pivo_projetil);
 void Atualiza_Asteroides(Contextos_Jogo *ctx);
 void Desenha_Asteroides(Contextos_Jogo *ctx);
+void Aplica_Limites_Circulares_Asteroides(Contextos_Jogo *ctx, float tamanho);
+void Checa_Colisao_Tiro_Asteroide(Contextos_Jogo *ctx);
+
+Vector2 Calcula_Posicao_Ponto(Vector2 centro_nave, float angulo, float offset_x, float offset_y);
+bool Checa_Colisao_Nave_Asteroide(Contextos_Jogo *ctx);
 
 // CENÁRIO (Parallax) E ÁUDIO DINÂMICO
-void Move_Cenario(float *pos_y, float *pos_x, float *vel_x_nave, float *vel_y_nave, float peso_parallax);
-void Desenha_Cenario(Texture2D textura, float *pos_x, float *pos_y);
+void Move_Cenario(Vector2 *pos_parallax, Vector2 *vel_nave, float peso_parallax);
+void Desenha_Cenario(Texture2D textura, Vector2 pos);
 void Som_Motor(Music engine, int *textura_ativa, float *volume);
 
+// FASES
+int Carregar_Fase(Contextos_Jogo *ctx, const char *nome_arquivo);
+int Checa_Fase_Concluida(Contextos_Jogo *ctx);
+void Resetar_Jogo(Contextos_Jogo *ctx);
 
+// SAVE E LOAD
+// AINDA PRECISO ESCREVER!!!
+void Executar_Save(Contextos_Jogo *ctx, int slot);
+void Executar_Load(Contextos_Jogo *ctx, int slot);
 
 #endif
