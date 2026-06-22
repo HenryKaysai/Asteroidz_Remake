@@ -85,7 +85,7 @@ typedef struct{
     Texture2D Estrelas_Maiores;
     Texture2D Nebulosa;
     Texture2D Estrelas_Menores;
-    // (pivôs agora sao constantes definidas com #define)
+    // (pivos agora sao constantes salvas com #define)
 
     //variáveis
     int temporizador_logo;
@@ -99,6 +99,10 @@ typedef struct{
     int fase_atual;
     int pontuacao;
 
+    // pra lidar com erros de slot vazio
+    int timer_erro_load;
+    int slot_erro;
+
     Vector2 pos_inicial_fase;
     
     Projetil tiros[MAX_TIROS];
@@ -106,6 +110,18 @@ typedef struct{
     Asteroide asteroides[MAX_ASTEROIDES];
 
 } Contextos_Jogo;
+
+
+// struct para representar os dados das saves
+typedef struct 
+{
+    Nave player;
+    Asteroide asteroides[MAX_ASTEROIDES];
+    int pontuacao;
+    int fase_atual;
+    // nao vejo necessidade de incluir os tiros 
+} SaveData;
+
 
 typedef struct
 {
@@ -183,12 +199,18 @@ int Carrega_Fase(Contextos_Jogo *ctx, const char *nome_arquivo);
 int Checa_Fase_Concluida(Contextos_Jogo *ctx);
 void Resetar_Jogo(Contextos_Jogo *ctx);
 void Passa_Proxima_Fase(Contextos_Jogo *ctx, GameState *estado);
-void Tela_GameOver(Contextos_Jogo *ctx, GameState *estado);
-void Tela_Vitoria(Contextos_Jogo *ctx, GameState *estado);
+void GameOver(Contextos_Jogo *ctx, GameState *estado);
+void Vitoria(Contextos_Jogo *ctx, GameState *estado);
 
 // SAVE E LOAD
-// AINDA PRECISO ESCREVER!!!
-void Executar_Save(Contextos_Jogo *ctx, int slot);
-void Executar_Load(Contextos_Jogo *ctx, int slot);
+SaveData Prepara_SaveData(Contextos_Jogo *ctx);
+int Executa_Save(Contextos_Jogo *ctx, int slot);
+
+void Carrega_SaveData(Contextos_Jogo *ctx, SaveData data);
+int Executa_Load(Contextos_Jogo *ctx, int slot, GameState *estado);
+
+void Erro_Load_Vazia(Contextos_Jogo *ctx, int slot);
+void Desenha_Erro_Load_Vazia(int slot_erro);
+
 
 #endif

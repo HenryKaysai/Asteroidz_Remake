@@ -177,9 +177,9 @@ void Escolhe_Slot(Contextos_Jogo *ctx,
         if (ctx->opcao_selecionada >= 0 && ctx->opcao_selecionada <= 7) {
 
             if (*estado == SAVE) {
-                Executar_Save(ctx, ctx->opcao_selecionada);
-            } else {
-                Executar_Load(ctx, ctx->opcao_selecionada);
+                Executa_Save(ctx, ctx->opcao_selecionada);
+            } else if (*estado == LOAD) {
+                Executa_Load(ctx, ctx->opcao_selecionada, estado);
             }
             
         } 
@@ -730,7 +730,8 @@ int Carrega_Fase(Contextos_Jogo *ctx, const char *nome_arquivo) {
 
     // conferir se abriu certo
     if (arquivo_nivel == NULL) {
-        printf("ERRO AO ABRIR ARQUIVO\n");
+        // se nao abriu certo, arquivo nao existe
+        // logo, as fases acabaram
         return 1;
     }
     
@@ -807,7 +808,9 @@ void Passa_Proxima_Fase(Contextos_Jogo *ctx, GameState *estado) {
     // tenta carregar a proxima fase
     // se devolver 1, significa que as fases acabaram
     if (Carrega_Fase(ctx, proxima_fase) == 1) {
-         Tela_Vitoria(ctx, estado);
+        Vitoria(ctx, estado);
+        ctx->fase_atual = 1; // reseta pra proxima 
+        return;
     }
     
     // reseta tiros
@@ -843,7 +846,7 @@ void Perde_Vida(Contextos_Jogo *ctx, GameState *estado) {
     ctx->pontuacao -= PONTOS_PERDIDOS_MORTE;
 
     if (ctx->player.vidas <= 0) {
-        Tela_GameOver(ctx, estado);
+        GameOver(ctx, estado);
         return;
     }
 
@@ -857,17 +860,25 @@ void Perde_Vida(Contextos_Jogo *ctx, GameState *estado) {
 }
 
 // funcao chamada quando o jogador vence todas fases
-void Tela_Vitoria(Contextos_Jogo *ctx, GameState *estado) {
+void Vitoria(Contextos_Jogo *ctx, GameState *estado) {
     // da pra editar e fazer aparecer uma tela de vitoria
     // por enquanto, vou deixar so como uma mudanca de estado pro menu inicial
+    ShowCursor();
+    EnableCursor();
+
+    ctx->opcao_selecionada = 0; 
     *estado = MENU;
 }
 
 
 // funcao chamada quando o jogador perde todas as vidas
-void Tela_GameOver(Contextos_Jogo *ctx, GameState *estado) {
+void GameOver(Contextos_Jogo *ctx, GameState *estado) {
     // da pra editar e fazer aparecer uma tela de morte com opcoes
     // por enquanto, vou deixar so como uma mudanca de estado pro menu inicial
+    ShowCursor();
+    EnableCursor();
+
+    ctx->opcao_selecionada = 0; 
     *estado = MENU;
 }
 
@@ -875,9 +886,102 @@ void Tela_GameOver(Contextos_Jogo *ctx, GameState *estado) {
 //Funções de LOAD e SAVE
 //////////////////////////////////////////////////
 
-void Executar_Save(Contextos_Jogo *ctx, int slot) {
-    return;
+int Executa_Save(Contextos_Jogo *ctx, int slot) {
+
+    char nome_arquivo[25];
+    sprintf(nome_arquivo, "saves/save_%d.bin", slot);
+
+    FILE *arquivo_save = fopen(nome_arquivo, "wb");
+
+    // conferir se abriu certo
+    if (arquivo_save == NULL) {
+        printf("ERRO AO ABRIR ARQUIVO\n");
+        return 1;
+    }
+    
+    SaveData data = Prepara_SaveData(ctx);
+    
+    fwrite(&data, sizeof(SaveData), 1, arquivo_save);
+
+    fclose(arquivo_save);
+    return 0;
 }
-void Executar_Load(Contextos_Jogo *ctx, int slot) {
-    return;
+
+// captura os dados do jogo e salva em uma instancia de SaveData
+// chamada quando o jogador escolhe um slot para save
+SaveData Prepara_SaveData(Contextos_Jogo *ctx) {
+    int i; // pro for loop
+    SaveData data;
+
+    data.fase_atual = ctx->fase_atual;
+    data.pontuacao = ctx->pontuacao;
+    data.player = ctx->player;
+
+    for (i=0; i<MAX_ASTEROIDES; i++) {
+        data.asteroides[i] = ctx->asteroides[i];
+    }
+    return data;
+}
+
+// le um arquivo de save e chama Carrega_SaveData 
+// chamada quando o jogador escolhe um slot para carregar
+int Executa_Load(Contextos_Jogo *ctx, int slot, GameState *estado) {
+    char nome_arquivo[25];
+    sprintf(nome_arquivo, "saves/save_%d.bin", slot);
+    
+    FILE *arquivo_load = fopen(nome_arquivo, "rb");
+
+    if (arquivo_load == NULL) {
+        Erro_Load_Vazia(ctx, slot + 1);
+        return 1;
+    }
+    
+    SaveData data; 
+    // le o arquivo e salva tudo na variavel data
+    fread(&data, sizeof(SaveData), 1, arquivo_load);
+    
+    // passa os dados para o contexto do jogo
+    Carrega_SaveData(ctx, data);
+
+    // muda o estado pra JOGANDO
+    *estado = JOGANDO;
+    HideCursor();    
+    DisableCursor();
+
+    // pra evitar crash de erro de indice
+    ctx->opcao_selecionada = 0;
+
+    fclose(arquivo_load);
+    return 0;
+}
+
+// dada uma savedata, salva os dados no contexto do jogo
+void Carrega_SaveData(Contextos_Jogo *ctx, SaveData data) {
+    int i; // pro loop for
+    
+    ctx->fase_atual = data.fase_atual;
+    ctx->player = data.player;
+    ctx->pontuacao = data.pontuacao;
+
+    for (i=0; i<MAX_ASTEROIDES; i++) {
+        ctx->asteroides[i] = data.asteroides[i];
+    }
+}
+
+// pra ser chamada se tentam carregar um slot vazio
+void Erro_Load_Vazia(Contextos_Jogo *ctx, int slot) {
+    ctx->timer_erro_load = 120; // Fica na tela por 2 segundos (60 * 2)
+    ctx->slot_erro = slot;      // Guarda o número do slot que falhou
+    // mostrar na tela uma mensagem de erro dizendo "Save X está vazio!"
+}
+
+void Desenha_Erro_Load_Vazia(int slot_erro) {
+    DrawRectangle(LARGURA_TELA / 2 - 200, ALTURA_TELA / 2 - 50, 400, 100, Fade(BLACK, 0.9f));
+    DrawRectangleLines(LARGURA_TELA / 2 - 200, ALTURA_TELA / 2 - 50, 400, 100, RED);
+    
+    char msg_erro[50];
+    sprintf(msg_erro, "SLOT %d VAZIO!", slot_erro);
+    
+    // desenha o texto centralizado na caixa
+    Desenha_Texto_Centralizado(msg_erro, ALTURA_TELA / 2 - 15, 30, RED);
 }

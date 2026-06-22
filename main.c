@@ -11,16 +11,14 @@ e todos passos do loop.
 
 /*
 Tarefas:
-Fazer o struct da fase com base no que ta no documento
-Fazer os níveis com base nos structs
-Fazer uma função pra desenhar e mover os asteroides
-Fazer a nave ter colisão com os asteroides e perder uma vida
-Fazer as 3 vidas do jogo
-Fazer os mísseis terem colisão com os asteroides e destruir eles
-Fazer o player poder salvar o jogo em um documento de txt com base no nível que ele ta e salvar em um dos slots
-Carregar o jogo pelos slots de save
-Fazer o menu de save igual o de load
- */
+ESCREVER CABEÇALHOS
+
+CONFIRMAR BUG: ta dando save sozinho? to conseguindo dar load em slots que nao salvei?
+
+mensagem de morte e de vitória
+
+modo de jogo infinito
+*/
 
 int main(void){
     //Incialização
@@ -138,6 +136,7 @@ int main(void){
                 if(IsKeyPressed(KEY_ESCAPE)){
                     ShowCursor();
                     EnableCursor();
+                    jogo.opcao_selecionada = 0;
                     estado_atual = PAUSE; // Muda para o estado de pausa
                 }
                 break;
@@ -150,9 +149,18 @@ int main(void){
 
 
             case LOAD:
+                // Decrescenta o timer de mensagem de erro
+                if (jogo.timer_erro_load > 0) {
+                    jogo.timer_erro_load--;
+                }
+
+                // testa se sairam do menu. 
+                // se nao, roda logica de navegacao
                 if (!Sai_Menu(&estado_atual, MENU)) {
                     Escolhe_Slot(&jogo, &estado_atual, MENU);
                 }
+                
+
                 break;
 
             case PAUSE:
@@ -230,6 +238,9 @@ int main(void){
                 }
                 case LOAD:
                     Desenha_Menu_Slots(&jogo.opcao_selecionada, "LOAD GAME");
+                    if (jogo.timer_erro_load > 0){
+                        Desenha_Erro_Load_Vazia(jogo.slot_erro);
+                    }
                     break;
 
                 case BEST_SCORES:
