@@ -11,6 +11,11 @@
 #define TAMANHO_NAVE 64.0f
 #define TAMANHO_ASTEROIDE 96.0f
 
+// quantos pontos se ganha por asteroide
+#define PONTOS_GANHOS_ASTEROIDE 50
+// quantos pontos se perde por morte
+#define PONTOS_PERDIDOS_MORTE 200
+
 #define PIVO_NAVE (Vector2){ TAMANHO_NAVE / 2, TAMANHO_NAVE / 2 }
 #define PIVO_PROJETIL (Vector2){ 2.0f, 8.0f }
 #define PIVO_BARRA (Vector2){ 32.0f, 2.5f }
@@ -23,8 +28,7 @@ typedef enum {
     JOGANDO,
     PAUSE,
     SAVE,
-    LOAD_IN_GAME,
-    LOAD_OUT_GAME,
+    LOAD,
     BEST_SCORES,
     SAIR
 } GameState;
@@ -43,6 +47,7 @@ typedef struct {
     Vector2 vel;
     float angulo;
     int vidas; 
+    int tempo_invencivel;
 } Nave;
 
 // estrutura pra um asteroide
@@ -92,6 +97,9 @@ typedef struct{
     int opcao_selecionada;
     int contador;
     int fase_atual;
+    int pontuacao;
+
+    Vector2 pos_inicial_fase;
     
     Projetil tiros[MAX_TIROS];
     Nave player;
@@ -149,7 +157,7 @@ void Desenha_Fantasmas(Texture2D textura, Rectangle source, Vector2 pos, float t
 void Gira_Nave(float *angulo);
 void Acelera_Nave(Vector2 *vel, Vector2 *pos, float *angulo);
 void Anima_Nave(int *frame, int *contador, int velocidade);
-void Desenha_Nave(int *marcador_som, float *angulo, Texture2D textura_idle, Texture2D textura_propulsao, int *framerate, Vector2 pivo, Vector2 pos);
+void Desenha_Nave(Contextos_Jogo *ctx, Som *som);
 void Atualiza_Nave(Contextos_Jogo* jogo, Som* som);
 void Atira_Nave(Sound missile_sound, int *temporizador, Projetil tiros[], Vector2 pos_nave, float angulo_nave);
 
@@ -163,15 +171,20 @@ void Checa_Colisao_Tiro_Asteroide(Contextos_Jogo *ctx);
 Vector2 Calcula_Posicao_Ponto(Vector2 centro_nave, float angulo, float offset_x, float offset_y);
 bool Checa_Colisao_Nave_Asteroide(Contextos_Jogo *ctx);
 
+void Perde_Vida(Contextos_Jogo *ctx, GameState *estado);
+
 // CENÁRIO (Parallax) E ÁUDIO DINÂMICO
 void Move_Cenario(Vector2 *pos_parallax, Vector2 *vel_nave, float peso_parallax);
 void Desenha_Cenario(Texture2D textura, Vector2 pos);
 void Som_Motor(Music engine, int *textura_ativa, float *volume);
 
 // FASES
-int Carregar_Fase(Contextos_Jogo *ctx, const char *nome_arquivo);
+int Carrega_Fase(Contextos_Jogo *ctx, const char *nome_arquivo);
 int Checa_Fase_Concluida(Contextos_Jogo *ctx);
 void Resetar_Jogo(Contextos_Jogo *ctx);
+void Passa_Proxima_Fase(Contextos_Jogo *ctx, GameState *estado);
+void Tela_GameOver(Contextos_Jogo *ctx, GameState *estado);
+void Tela_Vitoria(Contextos_Jogo *ctx, GameState *estado);
 
 // SAVE E LOAD
 // AINDA PRECISO ESCREVER!!!

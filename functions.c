@@ -92,7 +92,7 @@ void Desenha_Menu_Slots(int *opcao_selecionada, const char* titulo_menu){
 
     int fonte_slot = 24;
 
-    // Gera 8 retângulos denominados LOAD 1, LOAD 2... LOAD 8 
+    // gera 8 quadrados denominados LOAD 1, LOAD 2... LOAD 8 
     // representando diferentes slots que podem ser selecionados
     for (int i = 0; i < 8; i++) {
         // Se a opção selecionada for igual a i, pinta de rosa, senao, de preto
@@ -131,7 +131,7 @@ void Escolhe_Slot(Contextos_Jogo *ctx,
                     GameState *estado,      // Estado atual - pode ser load ou save
                     GameState estado_voltar // Estado desejado ao voltar 
                     ){ 
-    // Funcao generica que serve tanto para o estado de Load_In_Game, Load_Out_Game e Save
+    // Funcao generica que serve tanto para o estado de Load quanto Save
 
     // Pra facilitar o uso das teclas up e down pra navegar entre slots
     int mapa_cima[9]  =    {8, 8, 8, 8, 0, 1, 2, 3, 4};
@@ -362,33 +362,37 @@ void Som_Motor(Music engine, int *textura_ativa, float *volume){
 
 
 // Função para animar o propulsor da nave e desenhar a nave
-void Desenha_Nave(int *marcador_som, float *angulo, Texture2D textura_idle, Texture2D textura_propulsao, int *framerate, Vector2 pivo, Vector2 pos){
-    Rectangle nave_hitbox_source = {*framerate * TAMANHO_NAVE, 0 ,TAMANHO_NAVE, TAMANHO_NAVE};
-    Rectangle nave_hitbox_dest = {roundf(pos.x), roundf(pos.y), TAMANHO_NAVE, TAMANHO_NAVE};
+void Desenha_Nave(Contextos_Jogo *ctx, Som *som) {
+    Rectangle nave_hitbox_source = {ctx->frame_atual * TAMANHO_NAVE, 0, TAMANHO_NAVE, TAMANHO_NAVE};
+    Rectangle nave_hitbox_dest = {roundf(ctx->player.pos.x), roundf(ctx->player.pos.y), TAMANHO_NAVE, TAMANHO_NAVE};
 
     Texture2D textura_ativa;
 
-    if(IsKeyDown(KEY_W) || IsKeyDown(KEY_UP)){
-        textura_ativa = textura_propulsao;
-        (*marcador_som) = 1;
+    // Lógica do motor e som
+    if (IsKeyDown(KEY_W) || IsKeyDown(KEY_UP)) {
+        textura_ativa = ctx->Nave_Propulsor;
+        som->marcador_som_engine = 1;
+    } else {
+        som->marcador_som_engine = 0;
+        textura_ativa = ctx->Nave;
     }
-    else{
-        (*marcador_som) = 0;
-        textura_ativa = textura_idle;
+    
+    // se nao estiver invencivel OU
+    // se o tempo invencivel for divisivel por 4 (faz piscar rapido)
+    if (ctx->player.tempo_invencivel <= 0 || ctx->player.tempo_invencivel % 8 < 4) {
+        
+        DrawTexturePro(textura_ativa, nave_hitbox_source, nave_hitbox_dest, PIVO_NAVE, roundf(ctx->player.angulo), WHITE);
+        Desenha_Fantasmas(textura_ativa, nave_hitbox_source, ctx->player.pos, TAMANHO_NAVE, PIVO_NAVE, ctx->player.angulo);
+        
     }
-    DrawTexturePro(textura_ativa, nave_hitbox_source, nave_hitbox_dest, pivo, roundf(*angulo), WHITE);
 
     // --- DEBUG: Visualize as Hitboxes ---
-    // Remova este bloco quando o jogo estiver pronto
-    Vector2 centro_debug = pos; // Note que 'pos' já está disponível na função
-    Vector2 bico_debug = Calcula_Posicao_Ponto(centro_debug, *angulo, 0, -20);
-    Vector2 corpo_debug = Calcula_Posicao_Ponto(centro_debug, *angulo, 0, 5);
-
-    DrawCircleV(bico_debug, 8.0f, Fade(BLUE, 0.7f));   // Bico
-    DrawCircleV(corpo_debug, 22.0f, Fade(BLUE, 0.7f)); // Corpo
+    // (Lembre-se de remover ou comentar isso na versão final)
+    Vector2 bico_debug = Calcula_Posicao_Ponto(ctx->player.pos, ctx->player.angulo, 0, -20);
+    Vector2 corpo_debug = Calcula_Posicao_Ponto(ctx->player.pos, ctx->player.angulo, 0, 5);
+    DrawCircleV(bico_debug, 8.0f, Fade(BLUE, 0.7f));   
+    DrawCircleV(corpo_debug, 22.0f, Fade(BLUE, 0.7f)); 
     // ------------------------------------
-    
-    Desenha_Fantasmas(textura_ativa, nave_hitbox_source, pos, TAMANHO_NAVE, pivo, *angulo);
 }
 
 //Função para rotacionar a nave
@@ -526,6 +530,11 @@ void Desenha_Interface(Contextos_Jogo *ctx) {
     const char* texto_fase = TextFormat("FASE: %d", ctx->fase_atual);
     int largura_fase = MeasureText(texto_fase, 25);
     DrawText(texto_fase, LARGURA_TELA - largura_fase - 20, ALTURA_TELA - 100, 25, WHITE);
+
+    // pontuacao
+    const char* texto_pontos = TextFormat("PONTOS: %d", ctx->pontuacao);
+    int largura_pontos = MeasureText(texto_pontos, 25);
+    DrawText(texto_pontos, LARGURA_TELA - largura_pontos - 20, ALTURA_TELA - 130, 25, WHITE);
 }
 
 
@@ -659,7 +668,10 @@ void Checa_Colisao_Tiro_Asteroide(Contextos_Jogo *ctx) {
                 // desativa tiro e asteroide ao colidir
                 ctx->tiros[t].ativo = false;
                 ctx->asteroides[a].ativo = false;
-                // opcional: quebrar ou continuar verificando outros asteroides
+
+                ctx->pontuacao += PONTOS_GANHOS_ASTEROIDE;
+
+                // break, ja que um tiro so pode destruir um asteroide
                 break;
             }
         }
@@ -706,8 +718,7 @@ Vector2 Calcula_Posicao_Ponto(Vector2 centro_nave, float angulo, float offset_x,
 //Funções de fase e arquivos
 //////////////////////////////////////////////////
 
-int Carregar_Fase(Contextos_Jogo *ctx, const char *nome_arquivo) {
-    
+int Carrega_Fase(Contextos_Jogo *ctx, const char *nome_arquivo) {
     int i; // para o loop for
 
     // variaveis temporarias, uma cada para coluna
@@ -739,6 +750,9 @@ int Carregar_Fase(Contextos_Jogo *ctx, const char *nome_arquivo) {
             ctx->player.pos.y = temp_pos_y;
             ctx->player.vel.x = temp_vel_x;
             ctx->player.vel.y = temp_vel_y;
+            // tambem salva a posicao inicial pra quando perde vida
+            ctx->pos_inicial_fase.x = temp_pos_x;
+            ctx->pos_inicial_fase.y = temp_pos_y;
         }
         // se for asteroide
         else if (tipo_lido == 'A') {
@@ -782,7 +796,29 @@ int Checa_Fase_Concluida(Contextos_Jogo *ctx) {
     return 1; // verdadeiro
 }
 
+void Passa_Proxima_Fase(Contextos_Jogo *ctx, GameState *estado) {
+
+    ctx->fase_atual++; // sobe o nivel
+                    
+    // monta o nome do prox arquivo 
+    char proxima_fase[50]; 
+    sprintf(proxima_fase, "fases/nivel_%d.txt", ctx->fase_atual);
+    
+    // tenta carregar a proxima fase
+    // se devolver 1, significa que as fases acabaram
+    if (Carrega_Fase(ctx, proxima_fase) == 1) {
+         Tela_Vitoria(ctx, estado);
+    }
+    
+    // reseta tiros
+    for(int i = 0; i < MAX_TIROS; i++) {
+        ctx->tiros[i].ativo = false;
+    }
+}
+
 void Resetar_Jogo(Contextos_Jogo *ctx) {
+    ctx->pontuacao = 0;
+
     // desativa todos os asteroides
     for (int i = 0; i < MAX_ASTEROIDES; i++) {
         ctx->asteroides[i].ativo = false;
@@ -798,6 +834,41 @@ void Resetar_Jogo(Contextos_Jogo *ctx) {
     ctx->player.vel = (Vector2){ 0.0f, 0.0f };
     ctx->player.vidas = 3;
     ctx->fase_atual = 1;
+}
+
+void Perde_Vida(Contextos_Jogo *ctx, GameState *estado) {
+    // tira uma vida
+    ctx->player.vidas--;
+
+    ctx->pontuacao -= PONTOS_PERDIDOS_MORTE;
+
+    if (ctx->player.vidas <= 0) {
+        Tela_GameOver(ctx, estado);
+        return;
+    }
+
+    // reseta a posicao
+    ctx->player.pos = ctx->pos_inicial_fase;
+    // reseta a velocidade
+    ctx->player.vel = (Vector2){0.0f, 0.0f};
+    // da um tempo de invencibilidade
+    ctx->player.tempo_invencivel = 30;
+
+}
+
+// funcao chamada quando o jogador vence todas fases
+void Tela_Vitoria(Contextos_Jogo *ctx, GameState *estado) {
+    // da pra editar e fazer aparecer uma tela de vitoria
+    // por enquanto, vou deixar so como uma mudanca de estado pro menu inicial
+    *estado = MENU;
+}
+
+
+// funcao chamada quando o jogador perde todas as vidas
+void Tela_GameOver(Contextos_Jogo *ctx, GameState *estado) {
+    // da pra editar e fazer aparecer uma tela de morte com opcoes
+    // por enquanto, vou deixar so como uma mudanca de estado pro menu inicial
+    *estado = MENU;
 }
 
 //////////////////////////////////////////////////

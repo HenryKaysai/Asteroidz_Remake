@@ -83,11 +83,11 @@ int main(void){
                         case 0: // START
                             StopMusicStream(som.theme_sound);
                             Resetar_Jogo(&jogo);
-                            Carregar_Fase(&jogo, "fases/nivel_1.txt");
+                            Carrega_Fase(&jogo, "fases/nivel_1.txt");
                             estado_atual = JOGANDO;
                             break;
                         case 1: // LOAD
-                            estado_atual = LOAD_OUT_GAME;
+                            estado_atual = LOAD;
                             break;
                         case 2: // BEST SCORES
                             estado_atual = BEST_SCORES;
@@ -115,24 +115,23 @@ int main(void){
                 // detecta colisao e destroi asteroides
                 Checa_Colisao_Tiro_Asteroide(&jogo);
 
-                // detecta colisao da nave, tira vida e reseta posicao
-                if (Checa_Colisao_Nave_Asteroide(&jogo)) {
-                    jogo.player.vidas--;
+                // se o jogador nao estiver invencivel,
+                if (jogo.player.tempo_invencivel <= 0) {
+                    // detecta colisao da nave, tira vida e reseta posicao
+                    if (Checa_Colisao_Nave_Asteroide(&jogo)) {
+                        // diminui vida, confere se perdeu todas 
+                        // e reseta posicao
+                        Perde_Vida(&jogo, &estado_atual);
+                    }
+                } else { // se tiver invencivel, 
+                    // diminui o timer da invencibilidade
+                    jogo.player.tempo_invencivel--;
                 }
 
                 if (Checa_Fase_Concluida(&jogo) == 1) {
-                    jogo.fase_atual++; // sobe o nivel
+
+                    Passa_Proxima_Fase(&jogo, &estado_atual);
                     
-                    // monta o nome do prox arquivo 
-                    char proxima_fase[50]; 
-                    sprintf(proxima_fase, "fases/nivel_%d.txt", jogo.fase_atual);
-                    
-                    // tenta carregar a proxima fase
-                    // se devolver 1, significa que as fases acabaram
-                    if (Carregar_Fase(&jogo, proxima_fase) == 1) {
-                        estado_atual = MENU; // manda pro menu principal - implementar tela de vitoria?
-                        jogo.fase_atual = 1; // reseta pra proxima tentativa
-                    }
                 }
                 
                 //Entra no meu de pausa se apertar ESC
@@ -149,13 +148,8 @@ int main(void){
                 }
                 break;
 
-            case LOAD_IN_GAME:
-                if (!Sai_Menu(&estado_atual, PAUSE)) {
-                    Escolhe_Slot(&jogo, &estado_atual, PAUSE);
-                }
-                break;
 
-            case LOAD_OUT_GAME:
+            case LOAD:
                 if (!Sai_Menu(&estado_atual, MENU)) {
                     Escolhe_Slot(&jogo, &estado_atual, MENU);
                 }
@@ -164,23 +158,20 @@ int main(void){
             case PAUSE:
                 // Detecta navegacao e atualiza opcao_selecionada 
                 // Navega_Menu retorna 1 se detectar mudanças
-                if (Navega_Menu(&jogo.opcao_selecionada, 5, (ALTURA_TELA / 2) + 60, 50)) {
+                if (Navega_Menu(&jogo.opcao_selecionada, 4, (ALTURA_TELA / 2) + 60, 50)) {
                     switch(jogo.opcao_selecionada) {
                         case 0: // RESUME
                             estado_atual = JOGANDO;
                             HideCursor(); 
                             DisableCursor();
                             break;
-                        case 1: // LOAD
-                            estado_atual = LOAD_IN_GAME;
-                            break;
-                        case 2: // SAVE
+                        case 1: // SAVE
                             estado_atual = SAVE;
                             break;
-                        case 3: // MAIN MENU
+                        case 2: // MAIN MENU
                             estado_atual = MENU;
                             break;
-                        case 4: // EXIT
+                        case 3: // EXIT
                             estado_atual = SAIR;
                             break;
                     }
@@ -215,7 +206,7 @@ int main(void){
                     Desenha_Cenario(jogo.Nebulosa, parallax.nebulosa_pos);
                     Desenha_Cenario(jogo.Estrelas_Menores, parallax.estrelas_menores_pos);
                     Desenha_Cenario(jogo.Estrelas_Maiores, parallax.estrelas_maiores_pos);
-                    Desenha_Nave(&som.marcador_som_engine, &jogo.player.angulo, jogo.Nave, jogo.Nave_Propulsor, &jogo.frame_atual, PIVO_NAVE, jogo.player.pos);
+                    Desenha_Nave(&jogo, &som);
                     Atualiza_Tiro(&jogo.frame_atual, jogo.tiros, jogo.Projetil, PIVO_PROJETIL);
                     
                     // desenha barra de municao, vidas e fase atual
@@ -229,18 +220,15 @@ int main(void){
                     Desenha_Menu_Slots(&jogo.opcao_selecionada, "SAVE GAME");
                     break;
 
-                case LOAD_IN_GAME:
-                    Desenha_Menu_Slots(&jogo.opcao_selecionada, "LOAD GAME");
-                    break;
 
                 case PAUSE: 
                 {   //Menu de pausa, ainda não sei se tudo vai ser perdido se pausar o jogo
-                    const char* opcoes_pausa[] = { "RESUME", "LOAD", "SAVE", "MAIN MENU", "EXIT" };
-                    Desenha_Menu("PAUSE", opcoes_pausa, 5, jogo.opcao_selecionada);
-                    Desenha_Seta_Menu(&jogo.frame_atual, &jogo.opcao_selecionada, jogo.Pink_Arrow, PIVO_SETA, opcoes_pausa, 5);
+                    const char* opcoes_pausa[] = { "RESUME", "SAVE", "MAIN MENU", "EXIT" };
+                    Desenha_Menu("PAUSE", opcoes_pausa, 4, jogo.opcao_selecionada);
+                    Desenha_Seta_Menu(&jogo.frame_atual, &jogo.opcao_selecionada, jogo.Pink_Arrow, PIVO_SETA, opcoes_pausa, 4);
                     break;
                 }
-                case LOAD_OUT_GAME:
+                case LOAD:
                     Desenha_Menu_Slots(&jogo.opcao_selecionada, "LOAD GAME");
                     break;
 

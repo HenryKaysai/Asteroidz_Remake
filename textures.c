@@ -5,7 +5,7 @@ void Carregar_Texturas(Contextos_Jogo *ctx) {
     ctx->Nave = LoadTexture("sprites/nave.png");
     SetTextureFilter(ctx->Nave, TEXTURE_FILTER_POINT);
     
-    // pivots are now constants (PIVO_NAVE, PIVO_BARRA)
+    // pivots agora sao constantes (PIVO_NAVE, PIVO_BARRA)
     
     ctx->Nave_Propulsor = LoadTexture("sprites/nave_propulsor.png");
     SetTextureFilter(ctx->Nave_Propulsor, TEXTURE_FILTER_POINT);
