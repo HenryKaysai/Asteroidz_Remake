@@ -6,11 +6,15 @@
 
 #define LARGURA_TELA 1200
 #define ALTURA_TELA 800
+
 #define MAX_ASTEROIDES 15
 #define MAX_TIROS 3
+#define MAX_EXPLOSOES 15
+#define MAX_RANKING 5
+
 #define TAMANHO_NAVE 64.0f
 #define TAMANHO_ASTEROIDE 96.0f
-#define MAX_RANKING 5
+
 #define BEST_SCORES_FILENAME "saves/best_scores.bin"
 
 // quantos pontos se ganha por asteroide
@@ -68,16 +72,25 @@ typedef struct{
     Sound logo_sound;
     Music theme_sound;
     Sound missile_sound;
+    Sound explosion_sound;
     int marcador_som_engine;
     float volume_engine;
     Music idle_engine;
     Music engine;
+    
 } Som;
 
 // struct pra guardar os best scores
 typedef struct {
     int pontuacoes[MAX_RANKING];
 } Ranking;
+
+typedef struct {
+    Vector2 pos;
+    bool ativo;
+    int frame_atual;
+    int contador_tempo; // Para controlar a velocidade da animação
+} Explosao;
 
 //Carregamento das texturas e variáveis utilitárias
 typedef struct{
@@ -87,6 +100,7 @@ typedef struct{
     Texture2D Asteroid_1;
     Texture2D Asteroid_2;
     Texture2D Asteroid_3;
+    Texture2D Sprite_Explosao;
     Texture2D Pink_Arrow;
     Texture2D Projetil;
     Texture2D Barra_Carregamento;
@@ -120,6 +134,7 @@ typedef struct{
     Projetil tiros[MAX_TIROS];
     Nave player;
     Asteroide asteroides[MAX_ASTEROIDES];
+    Explosao explosoes[MAX_EXPLOSOES];
 
 } Contextos_Jogo;
 
@@ -131,6 +146,7 @@ typedef struct {
     int pontuacao;
     int fase_atual;
     int frames_jogados;
+    int asteroides_destruidos;
     // nao vejo necessidade de incluir os tiros 
 } SaveData;
 
@@ -196,7 +212,7 @@ void Atualiza_Tiro(int *framerate, Projetil tiros[], Texture2D textura_projetil,
 void Atualiza_Asteroides(Contextos_Jogo *ctx);
 void Desenha_Asteroides(Contextos_Jogo *ctx);
 void Aplica_Limites_Circulares_Asteroides(Contextos_Jogo *ctx, float tamanho);
-void Checa_Colisao_Tiro_Asteroide(Contextos_Jogo *ctx);
+void Checa_Colisao_Tiro_Asteroide(Contextos_Jogo *ctx, Som *som);
 
 Vector2 Calcula_Posicao_Ponto(Vector2 centro_nave, float angulo, float offset_x, float offset_y);
 bool Checa_Colisao_Nave_Asteroide(Contextos_Jogo *ctx);
@@ -232,5 +248,9 @@ void Salva_Ranking(Contextos_Jogo *ctx);
 void Atualiza_Ranking(Contextos_Jogo *ctx);
 void Desenha_Best_Scores(Contextos_Jogo *ctx);
 void Navega_Best_Scores(Contextos_Jogo *ctx, GameState *estado);
+
+// ANIMACOES EXPLOSOES
+void Atualiza_Explosoes(Contextos_Jogo *ctx);
+void Desenha_Explosoes(Contextos_Jogo *ctx);
 
 #endif

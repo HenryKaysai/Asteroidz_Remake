@@ -13,10 +13,7 @@ e todos passos do loop.
 Tarefas:
 ESCREVER CABEÇALHOS
 
-Best Scores
-
-
-CONFIRMAR BUG: ta dando save sozinho? to conseguindo dar load em slots que nao salvei?
+animacao asteroide
 
 mensagem de morte e de vitória
 
@@ -115,9 +112,10 @@ int main(void){
                 Atualiza_Barra(jogo.contador, &jogo.frames_barra);
                 Atualiza_Nave(&jogo, &som);
                 Atualiza_Asteroides(&jogo); 
+                Atualiza_Explosoes(&jogo);
 
                 // detecta colisao e destroi asteroides
-                Checa_Colisao_Tiro_Asteroide(&jogo);
+                Checa_Colisao_Tiro_Asteroide(&jogo, &som);
 
                 // se o jogador nao estiver invencivel,
                 if (jogo.player.tempo_invencivel <= 0) {
@@ -227,13 +225,16 @@ int main(void){
                     Desenha_Cenario(jogo.Nebulosa, parallax.nebulosa_pos);
                     Desenha_Cenario(jogo.Estrelas_Menores, parallax.estrelas_menores_pos);
                     Desenha_Cenario(jogo.Estrelas_Maiores, parallax.estrelas_maiores_pos);
+                    
+                    Desenha_Asteroides(&jogo);
+                    Desenha_Explosoes(&jogo);
                     Desenha_Nave(&jogo, &som);
                     Atualiza_Tiro(&jogo.frame_atual, jogo.tiros, jogo.Projetil, PIVO_PROJETIL);
                     
                     // desenha barra de municao, vidas e fase atual
                     Desenha_Interface(&jogo);
 
-                    Desenha_Asteroides(&jogo);
+                    
 
                     break;
 

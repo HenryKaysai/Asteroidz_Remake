@@ -640,7 +640,7 @@ void Desenha_Asteroides(Contextos_Jogo *ctx) {
 //Funções de colisão
 //////////////////////////////////////////////////
 
-void Checa_Colisao_Tiro_Asteroide(Contextos_Jogo *ctx) {
+void Checa_Colisao_Tiro_Asteroide(Contextos_Jogo *ctx, Som *som) {
     int t, a; //index para tiros e asteroides
 
     for (t=0; t<MAX_TIROS; t++) {
@@ -659,8 +659,24 @@ void Checa_Colisao_Tiro_Asteroide(Contextos_Jogo *ctx) {
                 // desativa tiro e asteroide ao colidir
                 ctx->tiros[t].ativo = false;
                 ctx->asteroides[a].ativo = false;
+                
+                PlaySound(som->explosion_sound); //toca som da explosao
+
+                //pro calculo do bonus dps
+                ctx->asteroides_destruidos++;
 
                 ctx->pontuacao += PONTOS_GANHOS_ASTEROIDE;
+
+                // procura uma explosao inativa e liga ela na posicao do asteroide
+                for (int e = 0; e < MAX_EXPLOSOES; e++) {
+                    if (ctx->explosoes[e].ativo == false) {
+                        ctx->explosoes[e].ativo = true;
+                        ctx->explosoes[e].pos = ctx->asteroides[a].pos; // Nasce onde o asteroide morreu
+                        ctx->explosoes[e].frame_atual = 0;
+                        ctx->explosoes[e].contador_tempo = 0;
+                        break; // Ativou uma, pode parar de procurar
+                    }
+                }
 
                 // break, ja que um tiro so pode destruir um asteroide
                 break;
@@ -813,10 +829,16 @@ void Passa_Proxima_Fase(Contextos_Jogo *ctx, GameState *estado) {
 void Resetar_Jogo(Contextos_Jogo *ctx) {
     ctx->pontuacao = 0;
     ctx->frames_jogados = 0;
+    ctx->asteroides_destruidos = 0;
 
     // desativa todos os asteroides
     for (int i = 0; i < MAX_ASTEROIDES; i++) {
         ctx->asteroides[i].ativo = false;
+    }
+
+    // desativa as explosoes
+    for (int i = 0; i < MAX_EXPLOSOES; i++) {
+    ctx->explosoes[i].ativo = false;
     }
 
     // desativa todos os tiros
@@ -927,7 +949,9 @@ SaveData Prepara_SaveData(Contextos_Jogo *ctx) {
     data.fase_atual = ctx->fase_atual;
     data.pontuacao = ctx->pontuacao;
     data.frames_jogados = ctx->frames_jogados;
+    data.asteroides_destruidos = ctx->asteroides_destruidos;
     data.player = ctx->player;
+    
     
     for (i=0; i<MAX_ASTEROIDES; i++) {
         data.asteroides[i] = ctx->asteroides[i];
@@ -974,7 +998,8 @@ void Carrega_SaveData(Contextos_Jogo *ctx, SaveData data) {
     ctx->fase_atual = data.fase_atual;
     ctx->player = data.player;
     ctx->pontuacao = data.pontuacao;
-    data.frames_jogados = ctx->frames_jogados;
+    ctx->frames_jogados = data.frames_jogados;
+    ctx->asteroides_destruidos = data.asteroides_destruidos;
 
     for (i=0; i<MAX_ASTEROIDES; i++) {
         ctx->asteroides[i] = data.asteroides[i];
@@ -1092,4 +1117,62 @@ void Navega_Best_Scores(Contextos_Jogo *ctx, GameState *estado) {
     } else { // se mouse nao tiver em cima da hitbox, de-seleciona
         ctx->opcao_selecionada = 0;
     } 
+}
+
+///////////////////////////////////////
+// EXPLOSOES
+///////////////////////////////////////
+
+void Atualiza_Explosoes(Contextos_Jogo *ctx) {
+    int velocidade_animacao = 4; //quantos frames dura cada img da animacao
+
+    for (int i = 0; i < MAX_EXPLOSOES; i++) {
+        if (ctx->explosoes[i].ativo == true) {
+            
+            ctx->explosoes[i].contador_tempo++;
+            
+            if (ctx->explosoes[i].contador_tempo >= velocidade_animacao) {
+                ctx->explosoes[i].frame_atual++;
+                ctx->explosoes[i].contador_tempo = 0;
+            }
+
+            if (ctx->explosoes[i].frame_atual > 7) { 
+                ctx->explosoes[i].ativo = false;
+            }
+        }
+    }
+}
+
+void Desenha_Explosoes(Contextos_Jogo *ctx) {
+    for (int i = 0; i < MAX_EXPLOSOES; i++) {
+        if (ctx->explosoes[i].ativo == true) {
+            
+            // tamanho do spirte da explosao
+            float largura_frame = 60.0f; 
+            float altura_frame = 60.0f;
+            
+            Rectangle source = { 
+                ctx->explosoes[i].frame_atual * largura_frame, 
+                0, 
+                largura_frame, 
+                altura_frame 
+            };
+            
+            // pivo no centro
+            Vector2 pivo = { 30.0f, 30.0f };
+            
+            // o destino eh o tamanho dos asteroides
+            // raylib da zoom pra 96x96
+            Rectangle dest = { 
+                ctx->explosoes[i].pos.x, 
+                ctx->explosoes[i].pos.y, 
+                TAMANHO_ASTEROIDE, 
+                TAMANHO_ASTEROIDE 
+            };
+
+            DrawTexturePro(ctx->Sprite_Explosao, source, dest, pivo, 0.0f, WHITE);
+            
+            Desenha_Fantasmas(ctx->Sprite_Explosao, source, ctx->explosoes[i].pos, TAMANHO_ASTEROIDE, pivo, 0.0f);
+        }
+    }
 }
