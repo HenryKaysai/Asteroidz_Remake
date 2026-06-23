@@ -57,7 +57,6 @@ void Desenha_Menu(const char* titulo, const char* opcoes[], int total_opcoes, in
     }
 }
 
-
 // Função para desenhar a seta do menu em diferentes posições
 void Desenha_Seta_Menu(int *framerate, int *opcao_selecionada, Texture2D textura, Vector2 pivo, const char* textos[], int total_opcoes) {
     int inicio_y = (ALTURA_TELA / 2) + 60;
@@ -177,7 +176,7 @@ void Escolhe_Slot(Contextos_Jogo *ctx,
         if (ctx->opcao_selecionada >= 0 && ctx->opcao_selecionada <= 7) {
 
             if (*estado == SAVE) {
-                Executa_Save(ctx, ctx->opcao_selecionada);
+                Executa_Save(ctx, ctx->opcao_selecionada, estado);
             } else if (*estado == LOAD) {
                 Executa_Load(ctx, ctx->opcao_selecionada, estado);
             }
@@ -385,14 +384,6 @@ void Desenha_Nave(Contextos_Jogo *ctx, Som *som) {
         Desenha_Fantasmas(textura_ativa, nave_hitbox_source, ctx->player.pos, TAMANHO_NAVE, PIVO_NAVE, ctx->player.angulo);
         
     }
-
-    // --- DEBUG: Visualize as Hitboxes ---
-    // (Lembre-se de remover ou comentar isso na versão final)
-    Vector2 bico_debug = Calcula_Posicao_Ponto(ctx->player.pos, ctx->player.angulo, 0, -20);
-    Vector2 corpo_debug = Calcula_Posicao_Ponto(ctx->player.pos, ctx->player.angulo, 0, 5);
-    DrawCircleV(bico_debug, 8.0f, Fade(BLUE, 0.7f));   
-    DrawCircleV(corpo_debug, 22.0f, Fade(BLUE, 0.7f)); 
-    // ------------------------------------
 }
 
 //Função para rotacionar a nave
@@ -821,6 +812,7 @@ void Passa_Proxima_Fase(Contextos_Jogo *ctx, GameState *estado) {
 
 void Resetar_Jogo(Contextos_Jogo *ctx) {
     ctx->pontuacao = 0;
+    ctx->frames_jogados = 0;
 
     // desativa todos os asteroides
     for (int i = 0; i < MAX_ASTEROIDES; i++) {
@@ -862,7 +854,20 @@ void Perde_Vida(Contextos_Jogo *ctx, GameState *estado) {
 // funcao chamada quando o jogador vence todas fases
 void Vitoria(Contextos_Jogo *ctx, GameState *estado) {
     // da pra editar e fazer aparecer uma tela de vitoria
-    // por enquanto, vou deixar so como uma mudanca de estado pro menu inicial
+    // por enquanto, vou deixar so como uma mudanca de estado pro menu inicial]
+
+    int bonus = 0;
+    // tempo ideal é destruir 1 asteroide a cada 2s (2x o tempo de reload)
+    // ve quanto que sobrou do tempo ideal
+    int tempo_sobra = (ctx->asteroides_destruidos * 120) - ctx->frames_jogados;
+    
+    // cada segundo de sobra vale 100 pontos
+    if (tempo_sobra > 0) {bonus = tempo_sobra * 100;}
+    
+    // soma na pontuação final
+    ctx->pontuacao += bonus;
+    Atualiza_Ranking(ctx);
+
     ShowCursor();
     EnableCursor();
 
@@ -875,6 +880,8 @@ void Vitoria(Contextos_Jogo *ctx, GameState *estado) {
 void GameOver(Contextos_Jogo *ctx, GameState *estado) {
     // da pra editar e fazer aparecer uma tela de morte com opcoes
     // por enquanto, vou deixar so como uma mudanca de estado pro menu inicial
+    Atualiza_Ranking(ctx);
+
     ShowCursor();
     EnableCursor();
 
@@ -886,10 +893,10 @@ void GameOver(Contextos_Jogo *ctx, GameState *estado) {
 //Funções de LOAD e SAVE
 //////////////////////////////////////////////////
 
-int Executa_Save(Contextos_Jogo *ctx, int slot) {
+int Executa_Save(Contextos_Jogo *ctx, int slot, GameState *estado) {
 
-    char nome_arquivo[25];
-    sprintf(nome_arquivo, "saves/save_%d.bin", slot);
+    char nome_arquivo[27];
+    sprintf(nome_arquivo, "saves/save_%d.bin", slot+1); //+1 pra ficar de 1 a 8
 
     FILE *arquivo_save = fopen(nome_arquivo, "wb");
 
@@ -904,6 +911,10 @@ int Executa_Save(Contextos_Jogo *ctx, int slot) {
     fwrite(&data, sizeof(SaveData), 1, arquivo_save);
 
     fclose(arquivo_save);
+
+    *estado = MENU;
+    ctx->opcao_selecionada=0;
+
     return 0;
 }
 
@@ -915,8 +926,9 @@ SaveData Prepara_SaveData(Contextos_Jogo *ctx) {
 
     data.fase_atual = ctx->fase_atual;
     data.pontuacao = ctx->pontuacao;
+    data.frames_jogados = ctx->frames_jogados;
     data.player = ctx->player;
-
+    
     for (i=0; i<MAX_ASTEROIDES; i++) {
         data.asteroides[i] = ctx->asteroides[i];
     }
@@ -926,8 +938,8 @@ SaveData Prepara_SaveData(Contextos_Jogo *ctx) {
 // le um arquivo de save e chama Carrega_SaveData 
 // chamada quando o jogador escolhe um slot para carregar
 int Executa_Load(Contextos_Jogo *ctx, int slot, GameState *estado) {
-    char nome_arquivo[25];
-    sprintf(nome_arquivo, "saves/save_%d.bin", slot);
+    char nome_arquivo[27];
+    sprintf(nome_arquivo, "saves/save_%d.bin", slot+1); //+1 pra ficar de 1 a 8
     
     FILE *arquivo_load = fopen(nome_arquivo, "rb");
 
@@ -962,6 +974,7 @@ void Carrega_SaveData(Contextos_Jogo *ctx, SaveData data) {
     ctx->fase_atual = data.fase_atual;
     ctx->player = data.player;
     ctx->pontuacao = data.pontuacao;
+    data.frames_jogados = ctx->frames_jogados;
 
     for (i=0; i<MAX_ASTEROIDES; i++) {
         ctx->asteroides[i] = data.asteroides[i];
@@ -984,4 +997,99 @@ void Desenha_Erro_Load_Vazia(int slot_erro) {
     
     // desenha o texto centralizado na caixa
     Desenha_Texto_Centralizado(msg_erro, ALTURA_TELA / 2 - 15, 30, RED);
+}
+
+
+
+// carrega o arquivo binario do best_scores em modo de leitura
+void Carrega_Ranking(Contextos_Jogo *ctx){
+    FILE *arquivo_ranking = fopen(BEST_SCORES_FILENAME, "rb");
+
+    if (arquivo_ranking == NULL) {
+        // Se o arquivo não existe, zera tudo
+        for (int i = 0; i < MAX_RANKING; i++) {
+            ctx->ranking.pontuacoes[i] = 0;
+        }
+        return;
+    }
+    // se o arquivo existir, salva os dados no contexto
+    fread(&ctx->ranking, sizeof(Ranking), 1, arquivo_ranking);
+    
+    fclose(arquivo_ranking);
+}
+
+// salva o ranking atualizado na memoria
+void Salva_Ranking(Contextos_Jogo *ctx) {
+    // wb cria o arquivo se nao existir
+    FILE *arquivo = fopen(BEST_SCORES_FILENAME, "wb");
+    if (arquivo != NULL) { // se nao der erro ao abrir
+        fwrite(&ctx->ranking, sizeof(Ranking), 1, arquivo);
+        fclose(arquivo);
+        return;
+    }
+    printf("ERRO LENDO %s", BEST_SCORES_FILENAME);
+}
+
+void Atualiza_Ranking(Contextos_Jogo *ctx) {
+    int i, j; // pro for
+
+    Carrega_Ranking(ctx);
+
+    for (i=0; i<MAX_RANKING; i++) {
+        if (ctx->pontuacao >= ctx->ranking.pontuacoes[i]) {
+            // empurra as menores uma posicao pra baixo
+            // vai de tras pra frente pra nao perder dados
+            for (j = MAX_RANKING - 1; j > i; j--) { 
+                ctx->ranking.pontuacoes[j] = ctx->ranking.pontuacoes[j-1];
+            }
+            //insere nova pontuacao na posicao certa
+            ctx->ranking.pontuacoes[i] = ctx->pontuacao;
+
+            break;
+        }
+    } 
+    // salva na memoria
+    Salva_Ranking(ctx);
+}
+
+// Interface visual para a tela do Ranking
+void Desenha_Best_Scores(Contextos_Jogo *ctx) {
+    Desenha_Texto_Centralizado("BEST SCORES", 80, 60, WHITE);
+
+    int inicio_y = 220;
+    
+    // Desenha as 5 posições
+    for (int i = 0; i < MAX_RANKING; i++) {
+        char texto_score[50];
+        
+        // se tem pontuacao, mostra ela formatada com zeros a esquerda
+        if (ctx->ranking.pontuacoes[i] > 0) {
+            sprintf(texto_score, "%d. %06d PONTOS", i + 1, ctx->ranking.pontuacoes[i]);
+        } else {
+            // se for zero, mostra uns tracinhos para ficar estiloso
+            sprintf(texto_score, "%d. ------", i + 1); 
+        }
+        
+        Desenha_Texto_Centralizado(texto_score, inicio_y + (i * 65), 40, WHITE);
+    }
+
+    // Botão de voltar (sempre destacado de rosa para mostrar que é a única opção)
+    Color cor = (ctx->opcao_selecionada == 1) ? PINK : WHITE;
+    Desenha_Texto_Centralizado("BACK", 700, 40, cor);
+}
+
+void Navega_Best_Scores(Contextos_Jogo *ctx, GameState *estado) {
+    Vector2 mouse_bs = GetMousePosition();
+    Rectangle back_hit_box_bs = {0, 700, LARGURA_TELA, 40};
+    
+    if (CheckCollisionPointRec(mouse_bs, back_hit_box_bs)) {
+        // se mouse esta sobre o hitbox, selecionada = 1 para pintar de rosa
+        ctx->opcao_selecionada = 1;
+        if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT)) {
+            *estado = MENU;
+            ctx->opcao_selecionada = 0;
+        }
+    } else { // se mouse nao tiver em cima da hitbox, de-seleciona
+        ctx->opcao_selecionada = 0;
+    } 
 }

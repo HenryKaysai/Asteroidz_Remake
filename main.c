@@ -13,6 +13,9 @@ e todos passos do loop.
 Tarefas:
 ESCREVER CABEÇALHOS
 
+Best Scores
+
+
 CONFIRMAR BUG: ta dando save sozinho? to conseguindo dar load em slots que nao salvei?
 
 mensagem de morte e de vitória
@@ -37,6 +40,7 @@ int main(void){
     //Carrega todas as texturas de uma vez
     Carregar_Texturas(&jogo);
     Carregar_Som(&som);
+    Carrega_Ranking(&jogo);
     
     //Variáveis de inicialização
     jogo.player.pos.x = LARGURA_TELA / 2;
@@ -102,6 +106,8 @@ int main(void){
             case JOGANDO:
                 HideCursor();
                 DisableCursor();
+                jogo.frames_jogados++;
+
                 Move_Cenario(&parallax.nebulosa_pos, &jogo.player.vel, 0.2f);
                 Move_Cenario(&parallax.estrelas_menores_pos, &jogo.player.vel, 0.4f);
                 Move_Cenario(&parallax.estrelas_maiores_pos, &jogo.player.vel, 0.6f);
@@ -190,7 +196,14 @@ int main(void){
                 break;
 
             case BEST_SCORES:
-                Sai_Menu(&estado_atual, MENU);
+                // o jogador pode sair com esc, enter ou espaço
+                if (IsKeyPressed(KEY_ESCAPE) || IsKeyPressed(KEY_ENTER) || IsKeyPressed(KEY_SPACE)) {
+                    estado_atual = MENU;
+                    jogo.opcao_selecionada = 0;
+                }
+                
+                // ou clicando no botão back
+                Navega_Best_Scores(&jogo, &estado_atual);
                 break;
         }
 
@@ -244,7 +257,7 @@ int main(void){
                     break;
 
                 case BEST_SCORES:
-
+                    Desenha_Best_Scores(&jogo);
                     break;
             }
             EndDrawing();

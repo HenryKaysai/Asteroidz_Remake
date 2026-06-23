@@ -10,6 +10,8 @@
 #define MAX_TIROS 3
 #define TAMANHO_NAVE 64.0f
 #define TAMANHO_ASTEROIDE 96.0f
+#define MAX_RANKING 5
+#define BEST_SCORES_FILENAME "saves/best_scores.bin"
 
 // quantos pontos se ganha por asteroide
 #define PONTOS_GANHOS_ASTEROIDE 50
@@ -20,6 +22,7 @@
 #define PIVO_PROJETIL (Vector2){ 2.0f, 8.0f }
 #define PIVO_BARRA (Vector2){ 32.0f, 2.5f }
 #define PIVO_SETA (Vector2){ 15.0f, 15.0f }
+
 
 //Definição dos estados do jogo
 typedef enum {
@@ -71,6 +74,11 @@ typedef struct{
     Music engine;
 } Som;
 
+// struct pra guardar os best scores
+typedef struct {
+    int pontuacoes[MAX_RANKING];
+} Ranking;
+
 //Carregamento das texturas e variáveis utilitárias
 typedef struct{
     //texturas
@@ -85,7 +93,6 @@ typedef struct{
     Texture2D Estrelas_Maiores;
     Texture2D Nebulosa;
     Texture2D Estrelas_Menores;
-    // (pivos agora sao constantes salvas com #define)
 
     //variáveis
     int temporizador_logo;
@@ -99,12 +106,17 @@ typedef struct{
     int fase_atual;
     int pontuacao;
 
+    // pra calcular bonus de pontuacao por tempo
+    int frames_jogados;
+    int asteroides_destruidos;
+
+    Vector2 pos_inicial_fase;
+
     // pra lidar com erros de slot vazio
     int timer_erro_load;
     int slot_erro;
 
-    Vector2 pos_inicial_fase;
-    
+    Ranking ranking;
     Projetil tiros[MAX_TIROS];
     Nave player;
     Asteroide asteroides[MAX_ASTEROIDES];
@@ -113,14 +125,15 @@ typedef struct{
 
 
 // struct para representar os dados das saves
-typedef struct 
-{
+typedef struct {
     Nave player;
     Asteroide asteroides[MAX_ASTEROIDES];
     int pontuacao;
     int fase_atual;
+    int frames_jogados;
     // nao vejo necessidade de incluir os tiros 
 } SaveData;
+
 
 
 typedef struct
@@ -132,6 +145,7 @@ typedef struct
     Vector2 estrelas_maiores_pos;
     float estrelas_maiores_vel;
 } Parallax;
+
 
 
 ////////////////////////////
@@ -204,7 +218,7 @@ void Vitoria(Contextos_Jogo *ctx, GameState *estado);
 
 // SAVE E LOAD
 SaveData Prepara_SaveData(Contextos_Jogo *ctx);
-int Executa_Save(Contextos_Jogo *ctx, int slot);
+int Executa_Save(Contextos_Jogo *ctx, int slot, GameState *estado);
 
 void Carrega_SaveData(Contextos_Jogo *ctx, SaveData data);
 int Executa_Load(Contextos_Jogo *ctx, int slot, GameState *estado);
@@ -212,5 +226,11 @@ int Executa_Load(Contextos_Jogo *ctx, int slot, GameState *estado);
 void Erro_Load_Vazia(Contextos_Jogo *ctx, int slot);
 void Desenha_Erro_Load_Vazia(int slot_erro);
 
+// RANKING
+void Carrega_Ranking(Contextos_Jogo *ctx);
+void Salva_Ranking(Contextos_Jogo *ctx);
+void Atualiza_Ranking(Contextos_Jogo *ctx);
+void Desenha_Best_Scores(Contextos_Jogo *ctx);
+void Navega_Best_Scores(Contextos_Jogo *ctx, GameState *estado);
 
 #endif
