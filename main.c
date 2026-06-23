@@ -13,8 +13,6 @@ e todos passos do loop.
 Tarefas:
 ESCREVER CABEÇALHOS
 
-animacao asteroide
-
 mensagem de morte e de vitória
 
 modo de jogo infinito
@@ -72,6 +70,7 @@ int main(void){
                 if (!IsMusicStreamPlaying(som.theme_sound)){
                     PlayMusicStream(som.theme_sound);
                 }
+                
                 UpdateMusicStream(som.theme_sound);
 
                 // detecta navegacao e atualiza opcao_selecionada 
@@ -203,6 +202,24 @@ int main(void){
                 // ou clicando no botão back
                 Navega_Best_Scores(&jogo, &estado_atual);
                 break;
+            
+            case VITORIA: 
+                // verifica se quer voltar pro menu
+                if (IsKeyPressed(KEY_ENTER) || IsKeyPressed(KEY_SPACE) || IsKeyPressed(KEY_ESCAPE)) {
+                    estado_atual = MENU;
+                    jogo.opcao_selecionada = 0;
+                }
+                break;
+
+            case GAME_OVER: 
+                Atualiza_Animacao_GameOver(&jogo);
+                
+                // verifica se quer voltar pro menu
+                if (jogo.gameover_em_loop == true && (IsKeyPressed(KEY_ENTER) || IsKeyPressed(KEY_SPACE) || IsKeyPressed(KEY_ESCAPE))) {
+                    estado_atual = MENU;
+                    jogo.opcao_selecionada = 0;
+                }
+                break;
         }
 
         BeginDrawing();
@@ -259,6 +276,14 @@ int main(void){
 
                 case BEST_SCORES:
                     Desenha_Best_Scores(&jogo);
+                    break;
+
+                case VITORIA:
+                    Desenha_Tela_Vitoria(&jogo);
+                    break;
+
+                case GAME_OVER:
+                    Desenha_Animacao_GameOver(&jogo);
                     break;
             }
             EndDrawing();

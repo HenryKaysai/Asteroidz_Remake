@@ -133,8 +133,8 @@ void Escolhe_Slot(Contextos_Jogo *ctx,
     // Funcao generica que serve tanto para o estado de Load quanto Save
 
     // Pra facilitar o uso das teclas up e down pra navegar entre slots
-    int mapa_cima[9]  =    {8, 8, 8, 8, 0, 1, 2, 3, 4};
-    int mapa_baixo[9] =    {4, 5, 6, 7, 8, 8, 8, 8, 0};
+    int mapa_cima[9]  =    {8, 8, 8, 8, 0, 1, 2, 3, 5};
+    int mapa_baixo[9] =    {4, 5, 6, 7, 8, 8, 8, 8, 1};
            
     // Atualiza opcao_selecionada baseada no teclado
     if(IsKeyPressed(KEY_RIGHT) || IsKeyPressed(KEY_D)){
@@ -873,43 +873,8 @@ void Perde_Vida(Contextos_Jogo *ctx, GameState *estado) {
 
 }
 
-// funcao chamada quando o jogador vence todas fases
-void Vitoria(Contextos_Jogo *ctx, GameState *estado) {
-    // da pra editar e fazer aparecer uma tela de vitoria
-    // por enquanto, vou deixar so como uma mudanca de estado pro menu inicial]
-
-    int bonus = 0;
-    // tempo ideal é destruir 1 asteroide a cada 2s (2x o tempo de reload)
-    // ve quanto que sobrou do tempo ideal
-    int tempo_sobra = (ctx->asteroides_destruidos * 120) - ctx->frames_jogados;
-    
-    // cada segundo de sobra vale 100 pontos
-    if (tempo_sobra > 0) {bonus = tempo_sobra * 100;}
-    
-    // soma na pontuação final
-    ctx->pontuacao += bonus;
-    Atualiza_Ranking(ctx);
-
-    ShowCursor();
-    EnableCursor();
-
-    ctx->opcao_selecionada = 0; 
-    *estado = MENU;
-}
 
 
-// funcao chamada quando o jogador perde todas as vidas
-void GameOver(Contextos_Jogo *ctx, GameState *estado) {
-    // da pra editar e fazer aparecer uma tela de morte com opcoes
-    // por enquanto, vou deixar so como uma mudanca de estado pro menu inicial
-    Atualiza_Ranking(ctx);
-
-    ShowCursor();
-    EnableCursor();
-
-    ctx->opcao_selecionada = 0; 
-    *estado = MENU;
-}
 
 //////////////////////////////////////////////////
 //Funções de LOAD e SAVE
@@ -1175,4 +1140,136 @@ void Desenha_Explosoes(Contextos_Jogo *ctx) {
             Desenha_Fantasmas(ctx->Sprite_Explosao, source, ctx->explosoes[i].pos, TAMANHO_ASTEROIDE, pivo, 0.0f);
         }
     }
+}
+
+
+
+///////////////////////////////////////////////
+// FUNCOES PRO GAMEOVER
+///////////////////////////////////////////////
+
+
+// funcao chamada quando o jogador perde todas as vidas
+void GameOver(Contextos_Jogo *ctx, GameState *estado) {
+
+    Atualiza_Ranking(ctx);
+
+    ShowCursor();
+    EnableCursor();
+
+    ctx->frame_gameover = 0;
+    ctx->contador_gameover = 0;
+    ctx->gameover_em_loop = false;
+
+    ctx->opcao_selecionada = 0; 
+    *estado = GAME_OVER;
+}
+
+
+void Atualiza_Animacao_GameOver(Contextos_Jogo *ctx) {
+    int velocidade = 8; // quantos frames dura cada sprite
+
+    ctx->contador_gameover++;
+    
+    if (ctx->contador_gameover >= velocidade) {
+        ctx->frame_gameover++;
+        ctx->contador_gameover = 0;
+
+        // se ainda ta na primeira parte da animacao,
+        //  que nao é ciclica (índices 0 a 12)
+        if (ctx->gameover_em_loop == false) {
+            if (ctx->frame_gameover > 12) {
+                ctx->gameover_em_loop = true; // ativa a parte 2 (ciclica)
+                ctx->frame_gameover = 14;     // pula para o primeiro sprite do loop
+            }
+        } 
+        // Se já está no loop (indices 14 a 19)
+        else {
+            if (ctx->frame_gameover > 19) {
+                ctx->frame_gameover = 14; // volta pro início do loop
+            }
+        }
+    }
+}
+
+void Desenha_Animacao_GameOver(Contextos_Jogo *ctx) {
+    
+    // ANIMACAO
+    // sprite é 200x250
+    float largura_frame = 200.0f; 
+    float altura_frame = 250.0f;
+    
+    Rectangle source = { 
+        ctx->frame_gameover * largura_frame, 
+        0, 
+        largura_frame, 
+        altura_frame 
+    };
+    // aumenta a imagem em 1.5x
+    float escala = 1.5f; 
+    
+    // centraliza no eixo x
+    Rectangle dest = { 
+        (LARGURA_TELA / 2) - ((largura_frame * escala) / 2), 
+        0, // comeca no y=0
+        largura_frame * escala, 
+        altura_frame * escala 
+    };
+    // tanto faz o pivo
+    Vector2 pivo = { 0, 0 };
+    DrawTexturePro(ctx->Sprite_GameOver, source, dest, pivo, 0.0f, WHITE);
+
+    // desenha a pontuacao
+    char texto_pontuacao[50];
+    sprintf(texto_pontuacao, "PONTUAÇÃO FINAL: %06d", ctx->pontuacao);
+    Desenha_Texto_Centralizado(texto_pontuacao, ALTURA_TELA / 2 + 150, 30, WHITE);
+    
+    // desenha o botao de voltar se ja esta em loop
+    if (ctx->gameover_em_loop == true) {
+        Desenha_Texto_Centralizado("PRESSIONE ENTER PARA VOLTAR", ALTURA_TELA - 100, 25, WHITE);
+    }
+}
+
+
+
+/////////////////////////
+// VITORIA
+/////////////////////////
+
+
+// funcao chamada quando o jogador vence todas fases
+void Vitoria(Contextos_Jogo *ctx, GameState *estado) {
+    // da pra editar e fazer aparecer uma tela de vitoria
+    // por enquanto, vou deixar so como uma mudanca de estado pro menu inicial]
+
+    int bonus = 0;
+    // tempo ideal é destruir 1 asteroide a cada 2s (2x o tempo de reload)
+    // ve quanto que sobrou do tempo ideal
+    int tempo_sobra = (ctx->asteroides_destruidos * 120) - ctx->frames_jogados;
+    
+    // cada segundo de sobra vale 100 pontos
+    if (tempo_sobra > 0) {bonus = tempo_sobra * 100;}
+    
+    // soma na pontuação final
+    ctx->pontuacao += bonus;
+    Atualiza_Ranking(ctx);
+
+    ShowCursor();
+    EnableCursor();
+
+    ctx->opcao_selecionada = 0; 
+    *estado = VITORIA;
+}
+
+void Desenha_Tela_Vitoria(Contextos_Jogo *ctx) {
+
+    Desenha_Texto_Centralizado("VOCÊ VENCEU!", ALTURA_TELA / 2 - 100, 100, WHITE);
+    
+    // desenha a pontuacao
+    char texto_pontuacao[50];
+    sprintf(texto_pontuacao, "PONTUAÇÃO FINAL: %06d", ctx->pontuacao);
+    Desenha_Texto_Centralizado(texto_pontuacao, ALTURA_TELA / 2 + 150, 30, WHITE);
+    
+    // desenha o botao de voltar 
+    Desenha_Texto_Centralizado("PRESSIONE ENTER PARA VOLTAR", ALTURA_TELA - 100, 25, WHITE);
 }

@@ -37,6 +37,8 @@ typedef enum {
     SAVE,
     LOAD,
     BEST_SCORES,
+    GAME_OVER,
+    VITORIA,
     SAIR
 } GameState;
 
@@ -107,6 +109,7 @@ typedef struct{
     Texture2D Estrelas_Maiores;
     Texture2D Nebulosa;
     Texture2D Estrelas_Menores;
+    Texture2D Sprite_GameOver;
 
     //variáveis
     int temporizador_logo;
@@ -119,16 +122,20 @@ typedef struct{
     int contador;
     int fase_atual;
     int pontuacao;
+    Vector2 pos_inicial_fase;
 
     // pra calcular bonus de pontuacao por tempo
     int frames_jogados;
     int asteroides_destruidos;
 
-    Vector2 pos_inicial_fase;
-
     // pra lidar com erros de slot vazio
     int timer_erro_load;
     int slot_erro;
+
+    // pra animacao de gameover
+    int frame_gameover; 
+    int contador_gameover;
+    bool gameover_em_loop;
 
     Ranking ranking;
     Projetil tiros[MAX_TIROS];
@@ -229,8 +236,6 @@ int Carrega_Fase(Contextos_Jogo *ctx, const char *nome_arquivo);
 int Checa_Fase_Concluida(Contextos_Jogo *ctx);
 void Resetar_Jogo(Contextos_Jogo *ctx);
 void Passa_Proxima_Fase(Contextos_Jogo *ctx, GameState *estado);
-void GameOver(Contextos_Jogo *ctx, GameState *estado);
-void Vitoria(Contextos_Jogo *ctx, GameState *estado);
 
 // SAVE E LOAD
 SaveData Prepara_SaveData(Contextos_Jogo *ctx);
@@ -252,5 +257,14 @@ void Navega_Best_Scores(Contextos_Jogo *ctx, GameState *estado);
 // ANIMACOES EXPLOSOES
 void Atualiza_Explosoes(Contextos_Jogo *ctx);
 void Desenha_Explosoes(Contextos_Jogo *ctx);
+
+// GAMEOVER
+void GameOver(Contextos_Jogo *ctx, GameState *estado);
+void Atualiza_Animacao_GameOver(Contextos_Jogo *ctx);
+void Desenha_Animacao_GameOver(Contextos_Jogo *ctx);
+
+// VITORIA
+void Vitoria(Contextos_Jogo *ctx, GameState *estado);
+void Desenha_Tela_Vitoria(Contextos_Jogo *ctx);
 
 #endif
