@@ -57,6 +57,9 @@ int main(void){
      
     while (!WindowShouldClose() && estado_atual != SAIR)
     {
+        if(estado_atual != JOGANDO && estado_atual != SAIR && estado_atual != LOGO){
+            Toca_Musica(som.menu_sound);
+        }
         switch (estado_atual)
         {
             case LOGO:
@@ -67,12 +70,6 @@ int main(void){
                 break;
 
             case MENU:
-                if (!IsMusicStreamPlaying(som.theme_sound)){
-                    PlayMusicStream(som.theme_sound);
-                }
-                
-                UpdateMusicStream(som.theme_sound);
-
                 // detecta navegacao e atualiza opcao_selecionada 
                 // Navega_Menu retorna 1 se detectar mudanças
                 if (Navega_Menu(&jogo.opcao_selecionada, 4, (ALTURA_TELA / 2) + 60, 50)) {
@@ -100,6 +97,8 @@ int main(void){
                 break;
 
             case JOGANDO:
+                StopMusicStream(som.menu_sound);
+                Toca_Musica(som.theme_sound);
                 HideCursor();
                 DisableCursor();
                 jogo.frames_jogados++;
@@ -156,14 +155,11 @@ int main(void){
                 if (jogo.timer_erro_load > 0) {
                     jogo.timer_erro_load--;
                 }
-
                 // testa se sairam do menu. 
                 // se nao, roda logica de navegacao
                 if (!Sai_Menu(&estado_atual, MENU)) {
                     Escolhe_Slot(&jogo, &estado_atual, MENU);
                 }
-                
-
                 break;
 
             case PAUSE:
@@ -204,6 +200,7 @@ int main(void){
                 break;
             
             case VITORIA: 
+                StopMusicStream(som.theme_sound);
                 // verifica se quer voltar pro menu
                 if (IsKeyPressed(KEY_ENTER) || IsKeyPressed(KEY_SPACE) || IsKeyPressed(KEY_ESCAPE)) {
                     estado_atual = MENU;
@@ -212,6 +209,7 @@ int main(void){
                 break;
 
             case GAME_OVER: 
+                StopMusicStream(som.theme_sound);
                 Atualiza_Animacao_GameOver(&jogo);
                 
                 // verifica se quer voltar pro menu
