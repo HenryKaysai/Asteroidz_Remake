@@ -89,7 +89,7 @@ void Desconta_Tamanho(const char* texto, Vector2 pos, int tamanho_fonte, Color c
 }
 
 //Função para desenhar o menu de pausa
-void Desenha_Menu_Slots(int *opcao_selecionada, const char* titulo_menu){
+void Desenha_Menu_Slots(SaveData *ctx, int *opcao_selecionada, const char* titulo_menu){
     // Funcao generica para desenhar os slots nos menus de Save e de Load
 
     Desenha_Texto_Centralizado(titulo_menu, 60, 60, WHITE);
@@ -112,7 +112,13 @@ void Desenha_Menu_Slots(int *opcao_selecionada, const char* titulo_menu){
         int pos_y = 140 + (linha * 250);
 
         DrawRectangle(pos_x, pos_y, 260, 220, cor_borda);
-        DrawRectangle(pos_x + 10, pos_y + 10, 240, 200, WHITE);
+        if (ctx->slot_ocupado[i]) {
+            // Se tem save, desenha a foto do jogo
+            DrawTexture(ctx->texturas_saves[i], pos_x + 10, pos_y + 10, WHITE);
+        } else {
+            // Se nao tem save, desenha branco
+            DrawRectangle(pos_x + 10, pos_y + 10, 240, 200, WHITE);
+        }
 
         // Cria o texto "SLOT X"
         char texto_slot[10];
@@ -129,7 +135,8 @@ void Desenha_Menu_Slots(int *opcao_selecionada, const char* titulo_menu){
 //Funções de funcionalidade de opções de menu
 //////////////////////////////////////////////////
 
-void Escolhe_Slot(Contextos_Jogo *ctx, 
+void Escolhe_Slot(  SaveData *data,
+                    Contextos_Jogo *ctx, 
                     GameState *estado,      // Estado atual - pode ser load ou save
                     GameState estado_voltar // Estado desejado ao voltar 
                     ){ 
@@ -179,7 +186,7 @@ void Escolhe_Slot(Contextos_Jogo *ctx,
         if (ctx->opcao_selecionada >= 0 && ctx->opcao_selecionada <= 7) {
 
             if (*estado == SAVE) {
-                Executa_Save(ctx, ctx->opcao_selecionada, estado);
+                Executa_Save(data, ctx, ctx->opcao_selecionada, estado);
             } else if (*estado == LOAD) {
                 Executa_Load(ctx, ctx->opcao_selecionada, estado);
             }
@@ -862,11 +869,38 @@ void Perde_Vida(Contextos_Jogo *ctx, GameState *estado) {
 //////////////////////////////////////////////////
 //Funções de LOAD e SAVE
 //////////////////////////////////////////////////
+// carrega as imagens do save
+void Carrega_Imagens_Menu(SaveData *ctx) {
+    for (int i = 0; i < 8; i++) {
+        char nome_imagem[27];
+        sprintf(nome_imagem, "saves/save_%d.png", i+1);
+        
+        // Verifica se o PNG existe
+        if (FileExists(nome_imagem)) {
+            ctx->texturas_saves[i] = LoadTexture(nome_imagem);
+            ctx->slot_ocupado[i] = true;
+        } else {
+            ctx->slot_ocupado[i] = false;
+        }
+    }
+}
 
-int Executa_Save(Contextos_Jogo *ctx, int slot, GameState *estado) {
+// descarrega as imagens
+void Descarrega_Imagens_Menu(SaveData *ctx) {
+    for (int i = 0; i < 8; i++) {
+        if (ctx->slot_ocupado[i]) {
+            UnloadTexture(ctx->texturas_saves[i]);
+            ctx->slot_ocupado[i] = false;
+        }
+    }
+}
+
+int Executa_Save(SaveData *data, Contextos_Jogo *ctx, int slot, GameState *estado) {
 
     char nome_arquivo[27];
+    char nome_imagem[27];
     sprintf(nome_arquivo, "saves/save_%d.bin", slot+1); //+1 pra ficar de 1 a 8
+    sprintf(nome_imagem, "saves/save_%d.png", slot+1);
 
     FILE *arquivo_save = fopen(nome_arquivo, "wb");
 
@@ -876,13 +910,19 @@ int Executa_Save(Contextos_Jogo *ctx, int slot, GameState *estado) {
         return 1;
     }
     
-    SaveData data = Prepara_SaveData(ctx);
-    
-    fwrite(&data, sizeof(SaveData), 1, arquivo_save);
-
+// Salva o bloco de dados que veio via ponteiro
+    fwrite(data, sizeof(SaveData), 1, arquivo_save);
     fclose(arquivo_save);
 
-    *estado = MENU;
+    // Salva o print do momento
+    ExportImage(data->print_temp_save, nome_imagem);
+    
+    // Atualiza a interface (Textura do slot)
+    if (data->slot_ocupado[slot]) UnloadTexture(data->texturas_saves[slot]);
+    data->texturas_saves[slot] = LoadTextureFromImage(data->print_temp_save);
+    data->slot_ocupado[slot] = true;
+
+    *estado = PAUSE;
     ctx->opcao_selecionada=0;
 
     return 0;

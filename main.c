@@ -33,6 +33,7 @@ int main(void){
     Contextos_Jogo jogo = { 0 };
     Som som = {0};
     Parallax parallax = {0};
+    SaveData save = {0};
     //Carrega todas as texturas de uma vez
     Carregar_Texturas(&jogo);
     Carregar_Som(&som);
@@ -84,6 +85,7 @@ int main(void){
                             break;
                         case 1: // LOAD
                             estado_atual = LOAD;
+                            Carrega_Imagens_Menu(&save);
                             break;
                         case 2: // BEST SCORES
                             estado_atual = BEST_SCORES;
@@ -137,6 +139,8 @@ int main(void){
                 
                 //Entra no meu de pausa se apertar ESC
                 if(IsKeyPressed(KEY_ESCAPE)){
+                    save.print_temp_save = LoadImageFromScreen();
+                    ImageResize(&save.print_temp_save, 240, 200);
                     ShowCursor();
                     EnableCursor();
                     jogo.opcao_selecionada = 0;
@@ -146,7 +150,7 @@ int main(void){
 
             case SAVE:
                 if (!Sai_Menu(&estado_atual, PAUSE)) {
-                    Escolhe_Slot(&jogo, &estado_atual, PAUSE);
+                    Escolhe_Slot(&save, &jogo, &estado_atual, PAUSE);
                 }
                 break;
 
@@ -159,7 +163,7 @@ int main(void){
                 // testa se sairam do menu. 
                 // se nao, roda logica de navegacao
                 if (!Sai_Menu(&estado_atual, MENU)) {
-                    Escolhe_Slot(&jogo, &estado_atual, MENU);
+                    Escolhe_Slot(&save, &jogo, &estado_atual, MENU);
                 }
                 break;
 
@@ -175,6 +179,7 @@ int main(void){
                             break;
                         case 1: // SAVE
                             estado_atual = SAVE;
+                            Carrega_Imagens_Menu(&save);
                             break;
                         case 2: // MAIN MENU
                             estado_atual = MENU;
@@ -259,7 +264,7 @@ int main(void){
                     break;
 
                 case SAVE:
-                    Desenha_Menu_Slots(&jogo.opcao_selecionada, "SAVE GAME");
+                    Desenha_Menu_Slots(&save, &jogo.opcao_selecionada, "SAVE GAME");
                     break;
 
 
@@ -271,7 +276,7 @@ int main(void){
                     break;
                 }
                 case LOAD:
-                    Desenha_Menu_Slots(&jogo.opcao_selecionada, "LOAD GAME");
+                    Desenha_Menu_Slots(&save, &jogo.opcao_selecionada, "LOAD GAME");
                     if (jogo.timer_erro_load > 0){
                         Desenha_Erro_Load_Vazia(jogo.slot_erro);
                     }

@@ -168,6 +168,9 @@ typedef struct {
     int fase_atual;
     int frames_jogados;
     int asteroides_destruidos;
+    Image print_temp_save;
+    Texture2D texturas_saves[8];
+    bool slot_ocupado[8];
     // nao vejo necessidade de incluir os tiros 
 } SaveData;
 
@@ -202,12 +205,12 @@ bool Sai_Menu(GameState *estado, GameState estado_desejado);
 
 // LÓGICA DE MENUS E NAVEGAÇÃO
 int Navega_Menu(int *selecionada, int max_opcoes, float inicio_y, float altura_linha);
-void Escolhe_Slot(Contextos_Jogo *ctx, GameState *estado, GameState estado_voltar);
+void Escolhe_Slot(SaveData *data, Contextos_Jogo *ctx, GameState *estado, GameState estado_voltar);
 void Atualiza_Seta(int *frame, int *contador, int velocidade);
 
 // RENDERIZAÇÃO DE INTERFACE (UI) E TEXTOS
 void Desenha_Menu(const char* titulo, const char* opcoes[], int total_opcoes, int selecionada);
-void Desenha_Menu_Slots(int *opcao_selecionada, const char* titulo_menu);
+void Desenha_Menu_Slots(SaveData *ctx, int *opcao_selecionada, const char* titulo_menu);
 void Desenha_Seta_Menu(int *framerate, int *opcao_selecionada, Texture2D textura, Vector2 pivo, const char* textos[], int total_opcoes);
 void Desenha_Texto_Centralizado(const char* texto, int pos_y, int tamanho_fonte, Color cor);
 void Desconta_Tamanho(const char* texto, Vector2 pos, int tamanho_fonte, Color cor);
@@ -253,8 +256,10 @@ void Resetar_Jogo(Contextos_Jogo *ctx);
 void Passa_Proxima_Fase(Contextos_Jogo *ctx, GameState *estado);
 
 // SAVE E LOAD
+void Carrega_Imagens_Menu(SaveData *ctx);
+void Descarrega_Imagens_Menu(SaveData *ctx);
 SaveData Prepara_SaveData(Contextos_Jogo *ctx);
-int Executa_Save(Contextos_Jogo *ctx, int slot, GameState *estado);
+int Executa_Save(SaveData *data, Contextos_Jogo *ctx, int slot, GameState *estado);
 
 void Carrega_SaveData(Contextos_Jogo *ctx, SaveData data);
 int Executa_Load(Contextos_Jogo *ctx, int slot, GameState *estado);

@@ -6,9 +6,15 @@
 
 ## Como jogar
 
+Se desejar compilaro game novamente existem duas automações presentes no documento:
+Uma para linux: build.sh
+Uma para Windows: build.bat
+
+Basta executá-las e o jogo vai inicializar após compilação, se não, basta abrir o .exe ja compilado
+
 #### Controles do jogo:
-W: Acelera a nave
-A, D: Rotaciona a imagem para a esquerda / direita
+W ou /\: Acelera a nave
+A, D ou <-, ->: Rotaciona a imagem para a esquerda / direita
 Espaço: Dispara um projétil
 Esc: Retorna ao menu
 
@@ -47,8 +53,11 @@ sound/   # contém os arquivos .wav de som
 sprites/ # contém os sprites (arquivos .png)
 include/ # contém as bibliotecas externas utilizadas (como raylib)
 fases/   # como dito anteriormente, contém os arquivos .txt das fases
-main     # arquivo binário executável para linux (gerado após compilação)
+lib/ #contém as dlls das bibliotecas do raylib
+main.exe     # arquivo binário executável (gerado após compilação)
 main.c   # arquivo orquestrador do programa. contém o loop principal 
+build.sh # executável para compilar o jogo em linux
+build.bat # executável para compilar o jogo em Windows
 functions.c  # contém todas definicoes de funcoes
 prototypes.h # arquivo header que contém todas structs, constantes e protótipos
 sound.c      # arquivo auxiliar com o carregamento do som
