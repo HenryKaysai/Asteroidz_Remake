@@ -89,6 +89,7 @@ typedef struct{
     float volume_engine;
     Music idle_engine;
     Music engine;
+    Music menu_sound;
     
 } Som;
 
@@ -240,6 +241,7 @@ void Perde_Vida(Contextos_Jogo *ctx, GameState *estado);
 void Move_Cenario(Vector2 *pos_parallax, Vector2 *vel_nave, float peso_parallax);
 void Desenha_Cenario(Texture2D textura, Vector2 pos);
 void Som_Motor(Music engine, int *textura_ativa, float *volume);
+void Toca_Musica(Music som);
 
 // FASES
 int Carrega_Fase(Contextos_Jogo *ctx, const char *nome_arquivo);

@@ -40,7 +40,7 @@ void Despausar_Jogo(GameState *estado){
         DisableCursor();
     }
 }
-
+    
 //////////////////////////////////////////////////
 //Funções de aparência
 //////////////////////////////////////////////////
@@ -127,8 +127,6 @@ void Desenha_Menu_Slots(int *opcao_selecionada, const char* titulo_menu){
     Desenha_Texto_Centralizado("BACK", 700, 40, cor_back);
 }
 
-
-
 //////////////////////////////////////////////////
 //Funções de funcionalidade de opções de menu
 //////////////////////////////////////////////////
@@ -197,10 +195,9 @@ void Escolhe_Slot(Contextos_Jogo *ctx,
     }
 }
                     
-
-
 // Função para selecao de opcoes nos menus principal e de pausa
 int Navega_Menu(int *selecionada, int max_opcoes, float inicio_y, float altura_linha) {
+    
     // Teclado
     if (IsKeyPressed(KEY_DOWN) || IsKeyPressed(KEY_S)) (*selecionada)++;
     if (IsKeyPressed(KEY_UP) || IsKeyPressed(KEY_W)) (*selecionada)--;
@@ -257,7 +254,6 @@ void Aplica_Limites_Circulares(Vector2 *pos, float tamanho){
         pos->y += ALTURA_TELA;
     }
 }
-
 
 //////////////////////////////////////////////////
 //Funções auxiliares de desenho 
@@ -319,8 +315,6 @@ void Atualiza_Nave(Contextos_Jogo* ctx, Som* som) {
     Atira_Nave(som->missile_sound, &ctx->contador, ctx->tiros, ctx->player.pos, ctx->player.angulo);
 }
 
-
-
 //Função para atualizar a animação da nave
 void Anima_Nave(int *frame, int *contador, int velocidade){
     (*contador)++;
@@ -364,8 +358,6 @@ void Som_Motor(Music engine, int *textura_ativa, float *volume){
         }
     }
 }
-
-
 
 // Função para animar o propulsor da nave e desenhar a nave
 void Desenha_Nave(Contextos_Jogo *ctx, Som *som) {
@@ -425,7 +417,6 @@ void Acelera_Nave(Vector2 *vel, Vector2 *pos, float *angulo){
     pos->y += vel->y;
 }
 
-
 // Função para atirar com a nave
 void Atira_Nave(Sound missile_sound, int *temporizador, Projetil tiros[], Vector2 pos_nave, float angulo_nave){    
     if (*temporizador < 60) {
@@ -434,7 +425,7 @@ void Atira_Nave(Sound missile_sound, int *temporizador, Projetil tiros[], Vector
 
     // Se a tecla estiver pressionada E a arma estiver carregada
     if(IsKeyPressed(KEY_SPACE) && (*temporizador) >= 60){
-        SetSoundVolume(missile_sound, 0.2f);
+        SetSoundVolume(missile_sound, 0.15f);
         PlaySound(missile_sound);
         for(int i = 0; i < MAX_TIROS; i++){
             if(tiros[i].ativo == false){
@@ -478,7 +469,6 @@ void Atira_Nave(Sound missile_sound, int *temporizador, Projetil tiros[], Vector
 }
 
 // Função que desenha o tiro da nave
-
 void Atualiza_Tiro(int *framerate, Projetil tiros[], Texture2D textura_projetil, Vector2 pivo_projetil){
     for(int i = 0; i < MAX_TIROS; i++){
         if(tiros[i].ativo == true){
@@ -498,7 +488,6 @@ void Atualiza_Tiro(int *framerate, Projetil tiros[], Texture2D textura_projetil,
         }
     }
 }
-
 
 //Função para gerar a barra de carregamento dos tiros da nave
 void Atualiza_Barra(int temporizador_tiro, int *framerate_barra){
@@ -534,8 +523,6 @@ void Desenha_Interface(Contextos_Jogo *ctx) {
     int largura_pontos = MeasureText(texto_pontos, 25);
     DrawText(texto_pontos, LARGURA_TELA - largura_pontos - 20, ALTURA_TELA - 130, 25, WHITE);
 }
-
-
 
 //////////////////////////////////////////////////
 //Funções de Parallax
@@ -578,8 +565,6 @@ void Desenha_Cenario(Texture2D textura, Vector2 pos){
     // Quadrante Diagonal (Noroeste)
     DrawTexture(textura, px - LARGURA_TELA, py - ALTURA_TELA, WHITE);
 }
-
-
 
 //////////////////////////////////////////////////
 //Funções dos asteroides
@@ -642,7 +627,6 @@ void Desenha_Asteroides(Contextos_Jogo *ctx) {
     }
 }
 
-
 //////////////////////////////////////////////////
 //Funções de colisão
 //////////////////////////////////////////////////
@@ -666,7 +650,7 @@ void Checa_Colisao_Tiro_Asteroide(Contextos_Jogo *ctx, Som *som) {
                 // desativa tiro e asteroide ao colidir
                 ctx->tiros[t].ativo = false;
                 ctx->asteroides[a].ativo = false;
-                
+                SetSoundVolume(som->explosion_sound, 0.2f);
                 PlaySound(som->explosion_sound); //toca som da explosao
 
                 //pro calculo do bonus dps
@@ -691,9 +675,6 @@ void Checa_Colisao_Tiro_Asteroide(Contextos_Jogo *ctx, Som *som) {
         }
     }
 }
-
-
-
 
 bool Checa_Colisao_Nave_Asteroide(Contextos_Jogo *ctx) {
     int a; //index para tiros e asteroides
@@ -880,9 +861,6 @@ void Perde_Vida(Contextos_Jogo *ctx, GameState *estado) {
 
 }
 
-
-
-
 //////////////////////////////////////////////////
 //Funções de LOAD e SAVE
 //////////////////////////////////////////////////
@@ -995,8 +973,6 @@ void Desenha_Erro_Load_Vazia(int slot_erro) {
     // desenha o texto centralizado na caixa
     Desenha_Texto_Centralizado(msg_erro, ALTURA_TELA / 2 - 15, 30, RED);
 }
-
-
 
 // carrega o arquivo binario do best_scores em modo de leitura
 void Carrega_Ranking(Contextos_Jogo *ctx){
@@ -1149,12 +1125,9 @@ void Desenha_Explosoes(Contextos_Jogo *ctx) {
     }
 }
 
-
-
 ///////////////////////////////////////////////
 // FUNCOES PRO GAMEOVER
 ///////////////////////////////////////////////
-
 
 // funcao chamada quando o jogador perde todas as vidas
 void GameOver(Contextos_Jogo *ctx, GameState *estado) {
@@ -1171,7 +1144,6 @@ void GameOver(Contextos_Jogo *ctx, GameState *estado) {
     ctx->opcao_selecionada = 0; 
     *estado = GAME_OVER;
 }
-
 
 void Atualiza_Animacao_GameOver(Contextos_Jogo *ctx) {
     int velocidade = 8; // quantos frames dura cada sprite
@@ -1237,12 +1209,9 @@ void Desenha_Animacao_GameOver(Contextos_Jogo *ctx) {
     }
 }
 
-
-
 /////////////////////////
 // VITORIA
 /////////////////////////
-
 
 // funcao chamada quando o jogador vence todas fases
 void Vitoria(Contextos_Jogo *ctx, GameState *estado) {
@@ -1279,4 +1248,17 @@ void Desenha_Tela_Vitoria(Contextos_Jogo *ctx) {
     
     // desenha o botao de voltar 
     Desenha_Texto_Centralizado("PRESSIONE ENTER PARA VOLTAR", ALTURA_TELA - 100, 25, WHITE);
+}
+
+
+/////////////////////////
+// Som menu e jogo
+/////////////////////////
+// Função para tocar musica
+void Toca_Musica(Music som){
+    SetMusicVolume(som, 0.6f);
+    if (!IsMusicStreamPlaying(som)){
+        PlayMusicStream(som);
+    }    
+    UpdateMusicStream(som);
 }
