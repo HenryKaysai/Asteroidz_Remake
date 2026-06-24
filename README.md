@@ -13,8 +13,8 @@ Uma para Windows: build.bat
 Basta executá-las e o jogo vai inicializar após compilação, se não, basta abrir o .exe ja compilado
 
 #### Controles do jogo:
-W ou /\: Acelera a nave
-A, D ou <-, ->: Rotaciona a imagem para a esquerda / direita
+W ou seta para cima: Acelera a nave
+A, D ou seta para esquerda ou direita: Rotaciona a imagem para a esquerda / direita
 Espaço: Dispara um projétil
 Esc: Retorna ao menu
 
