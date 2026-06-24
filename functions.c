@@ -1,3 +1,10 @@
+/*
+Arquivo que contem todas as definicoes de funcoes do jogo,
+desde funcoes genericas ate funcoes auxiliares
+*/
+
+
+
 #include "raylib.h"
 #include "prototypes.h"
 #include <math.h>

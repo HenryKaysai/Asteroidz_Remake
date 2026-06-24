@@ -1,3 +1,7 @@
+/*
+Arquivo especifico para definicao de funcoes de audio
+*/
+
 #include "raylib.h"
 #include "prototypes.h"
 

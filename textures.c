@@ -1,3 +1,7 @@
+/*
+Arquivo especifico para definicao de funcoes de textura/imagens
+*/
+
 #include "raylib.h"
 #include "prototypes.h"
 

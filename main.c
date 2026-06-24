@@ -1,7 +1,8 @@
 /*
-Arquivo principal do jogo. Carrega a biblioteca raylib e os 
-prototipos das funções e controla as transiçoes entre estados 
-e todos passos do loop. 
+Arquivo principal do jogo. Contem a logica principal do loop do jogo 
+e orquestra as funcoes e transicoes entre estados.
+Inicializa as variaveis e carrega bibliotecas e 
+recursos e de audio e imagem.
 */
 
 #include "raylib.h"

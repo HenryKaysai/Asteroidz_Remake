@@ -1,3 +1,13 @@
+/*
+ Header file do jogo. Contem:
+ - Definicoes de constantes 
+ - Estados do jogo em forma de Enum
+ - Definicoes de todas structs utilizadas
+ - Prototipos de todas funcoes implementadas
+*/
+
+
+
 #ifndef prototypes_h
 #define prototypes_h
 
