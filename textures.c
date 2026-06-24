@@ -56,4 +56,5 @@ void Descarregar_Texturas(Contextos_Jogo *ctx){
     UnloadTexture(ctx->Estrelas_Menores);
     UnloadTexture(ctx->Estrelas_Maiores);
     UnloadTexture(ctx->Nebulosa);
+    UnloadTexture(ctx->Sprite_GameOver);
 }
