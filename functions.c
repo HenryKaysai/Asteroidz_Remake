@@ -3,8 +3,6 @@ Arquivo que contem todas as definicoes de funcoes do jogo,
 desde funcoes genericas ate funcoes auxiliares
 */
 
-
-
 #include "raylib.h"
 #include "prototypes.h"
 #include <math.h>
@@ -974,6 +972,10 @@ void Desenha_Erro_Load_Vazia(int slot_erro) {
     Desenha_Texto_Centralizado(msg_erro, ALTURA_TELA / 2 - 15, 30, RED);
 }
 
+/////////////////////////////////
+// BEST SCORES / RANKING
+/////////////////////////////////
+
 // carrega o arquivo binario do best_scores em modo de leitura
 void Carrega_Ranking(Contextos_Jogo *ctx){
     FILE *arquivo_ranking = fopen(BEST_SCORES_FILENAME, "rb");
@@ -1067,6 +1069,20 @@ void Navega_Best_Scores(Contextos_Jogo *ctx, GameState *estado) {
     } 
 }
 
+
+// dado um score, retorna a posição (1 a 5). retorna 0 se não encontra no ranking
+int Calcular_Posicao_Ranking(Contextos_Jogo *ctx, int score) {
+    // itera sobre o ranking atual
+    int i;
+
+    for (i=0; i<MAX_RANKING; i++) {
+        if (score >= ctx->ranking.pontuacoes[i]) {
+            return i + 1; // encontrou a posicao (1, 2, 3, 4 ou 5)
+        }
+    }
+    return 0; // nao ta no top5
+}
+
 ///////////////////////////////////////
 // EXPLOSOES
 ///////////////////////////////////////
@@ -1132,6 +1148,9 @@ void Desenha_Explosoes(Contextos_Jogo *ctx) {
 // funcao chamada quando o jogador perde todas as vidas
 void GameOver(Contextos_Jogo *ctx, GameState *estado) {
 
+    // calcula a posicao da pontuacao atual no ranking
+    ctx->posicao_ultima_partida = Calcular_Posicao_Ranking(ctx, ctx->pontuacao);
+    
     Atualiza_Ranking(ctx);
 
     ShowCursor();
@@ -1173,6 +1192,15 @@ void Atualiza_Animacao_GameOver(Contextos_Jogo *ctx) {
 
 void Desenha_Animacao_GameOver(Contextos_Jogo *ctx) {
     
+    // mostra um aviso na tela se conseguiu nova posicao no ranking
+    if (ctx->posicao_ultima_partida > 0) {
+        char msg_ranking[100];
+        
+        sprintf(msg_ranking, "Você obteve a %dª maior pontuação! Parabéns!", ctx->posicao_ultima_partida);
+        
+        Desenha_Texto_Centralizado(msg_ranking, ALTURA_TELA / 2 + 200, 25, GOLD);
+    }
+
     // ANIMACAO
     // sprite é 200x250
     float largura_frame = 200.0f; 
@@ -1215,9 +1243,11 @@ void Desenha_Animacao_GameOver(Contextos_Jogo *ctx) {
 
 // funcao chamada quando o jogador vence todas fases
 void Vitoria(Contextos_Jogo *ctx, GameState *estado) {
-    // da pra editar e fazer aparecer uma tela de vitoria
-    // por enquanto, vou deixar so como uma mudanca de estado pro menu inicial]
+    
+    // calcula a posicao da pontuacao atual no ranking
+    ctx->posicao_ultima_partida = Calcular_Posicao_Ranking(ctx, ctx->pontuacao);
 
+    // calcula um bonus de pontuacao pela velocidade 
     int bonus = 0;
     // tempo ideal é destruir 1 asteroide a cada 2s (2x o tempo de reload)
     // ve quanto que sobrou do tempo ideal
@@ -1239,6 +1269,15 @@ void Vitoria(Contextos_Jogo *ctx, GameState *estado) {
 
 void Desenha_Tela_Vitoria(Contextos_Jogo *ctx) {
 
+    // mostra um aviso na tela se conseguiu nova posicao no ranking
+    if (ctx->posicao_ultima_partida > 0) {
+        char msg_ranking[100];
+        
+        sprintf(msg_ranking, "Você obteve a %dª maior pontuação! Parabéns!", ctx->posicao_ultima_partida);
+        
+        Desenha_Texto_Centralizado(msg_ranking, ALTURA_TELA / 2 + 200, 25, GOLD);
+    }
+
     Desenha_Texto_Centralizado("VOCÊ VENCEU!", ALTURA_TELA / 2 - 100, 100, WHITE);
     
     // desenha a pontuacao
@@ -1249,6 +1288,7 @@ void Desenha_Tela_Vitoria(Contextos_Jogo *ctx) {
     // desenha o botao de voltar 
     Desenha_Texto_Centralizado("PRESSIONE ENTER PARA VOLTAR", ALTURA_TELA - 100, 25, WHITE);
 }
+
 
 
 /////////////////////////
@@ -1262,3 +1302,4 @@ void Toca_Musica(Music som){
     }    
     UpdateMusicStream(som);
 }
+

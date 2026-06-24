@@ -148,6 +148,9 @@ typedef struct{
     int contador_gameover;
     bool gameover_em_loop;
 
+    // pra avisar da posicao obtida no ranking
+    int posicao_ultima_partida;
+
     Ranking ranking;
     Projetil tiros[MAX_TIROS];
     Nave player;
@@ -265,6 +268,7 @@ void Salva_Ranking(Contextos_Jogo *ctx);
 void Atualiza_Ranking(Contextos_Jogo *ctx);
 void Desenha_Best_Scores(Contextos_Jogo *ctx);
 void Navega_Best_Scores(Contextos_Jogo *ctx, GameState *estado);
+int Calcular_Posicao_Ranking(Contextos_Jogo *ctx, int score);
 
 // ANIMACOES EXPLOSOES
 void Atualiza_Explosoes(Contextos_Jogo *ctx);

@@ -201,7 +201,9 @@ int main(void){
                 break;
             
             case VITORIA: 
-                StopMusicStream(som.theme_sound);
+                if (IsMusicStreamPlaying(som.theme_sound)) {
+                    StopMusicStream(som.theme_sound);
+                }
                 // verifica se quer voltar pro menu
                 if (IsKeyPressed(KEY_ENTER) || IsKeyPressed(KEY_SPACE) || IsKeyPressed(KEY_ESCAPE)) {
                     estado_atual = MENU;
@@ -210,7 +212,9 @@ int main(void){
                 break;
 
             case GAME_OVER: 
-                StopMusicStream(som.theme_sound);
+                if (IsMusicStreamPlaying(som.theme_sound)) {
+                    StopMusicStream(som.theme_sound);
+                }
                 Atualiza_Animacao_GameOver(&jogo);
                 
                 // verifica se quer voltar pro menu
