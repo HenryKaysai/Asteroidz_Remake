@@ -7,7 +7,9 @@
 ## Como jogar
 
 Se desejar compilaro game novamente existem duas automações presentes no documento:
+
 Uma para linux: build.sh
+
 Uma para Windows: build.bat
 
 Basta executá-las e o jogo vai inicializar após compilação, se não, basta abrir o .exe ja compilado
